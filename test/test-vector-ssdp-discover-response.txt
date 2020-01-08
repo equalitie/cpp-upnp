@@ -1,0 +1,11 @@
+HTTP/1.1 200 OK
+CACHE-CONTROL: max-age=120
+ST: urn:schemas-upnp-org:device:InternetGatewayDevice:2
+USN: uuid:A37351C5-8521-4c24-A43E-DC537CBA5DE6::urn:schemas-upnp-org:device:InternetGatewayDevice:2
+EXT:
+SERVER: Compal Broadband Networks, Inc/Linux/2.6.39.3 UPnP/1.1 MiniUPnPd/1.9
+LOCATION: http://192.168.0.1:5000/rootDesc.xml
+OPT: "http://schemas.upnp.org/upnp/1/0/"; ns=01
+01-NLS: 1578473456
+BOOTID.UPNP.ORG: 1578473456
+CONFIGID.UPNP.ORG: 1337

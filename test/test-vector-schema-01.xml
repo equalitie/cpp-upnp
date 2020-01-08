@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+    <specVersion>
+        <major>1</major>
+        <minor>0</minor>
+    </specVersion>
+    <device>
+        <deviceType>urn:schemas-upnp-org:device:InternetGatewayDevice:1</deviceType>
+        <friendlyName>Compal Broadband Networks, Inc CH7465LG</friendlyName>
+        <manufacturer>Compal Broadband Networks, Inc</manufacturer>
+        <manufacturerURL>http://www.icbn.com.tw</manufacturerURL>
+        <modelDescription> CH7465LG</modelDescription>
+        <modelName> CH7465LG</modelName>
+        <modelNumber>CH7465LG</modelNumber>
+        <modelURL>http://www.icbn.com.tw</modelURL>
+        <serialNumber>DDAP52813</serialNumber>
+        <UDN>uuid:A37351C5-8521-4c24-A43E-DC537CBA5DE6</UDN>
+        <serviceList>
+            <service>
+                <serviceType>urn:schemas-upnp-org:service:Layer3Forwarding:1</serviceType>
+                <serviceId>urn:upnp-org:serviceId:Layer3Forwarding1</serviceId>
+                <controlURL>/ctl/L3F</controlURL>
+                <eventSubURL>/evt/L3F</eventSubURL>
+                <SCPDURL>/L3F.xml</SCPDURL>
+            </service>
+        </serviceList>
+        <deviceList>
+            <device>
+                <deviceType>urn:schemas-upnp-org:device:WANDevice:1</deviceType>
+                <friendlyName>Compal Broadband Networks, Inc CH7465LG</friendlyName>
+                <manufacturer>Compal Broadband Networks, Inc</manufacturer>
+                <manufacturerURL>http://www.icbn.com.tw</manufacturerURL>
+                <modelDescription> CH7465LG</modelDescription>
+                <modelName> CH7465LG</modelName>
+                <modelNumber> CH7465LG</modelNumber>
+                <modelURL>http://www.icbn.com.tw</modelURL>
+                <serialNumber>DDAP52813</serialNumber>
+                <UDN>uuid:A37351C5-8521-4c24-A43E-DC537CBA5DE7</UDN>
+                <UPC>unimplemented</UPC>
+                <serviceList>
+                    <service>
+                        <serviceType>urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1</serviceType>
+                        <serviceId>urn:upnp-org:serviceId:WANCommonIFC1</serviceId>
+                        <controlURL>/ctl/CmnIfCfg</controlURL>
+                        <eventSubURL>/evt/CmnIfCfg</eventSubURL>
+                        <SCPDURL>/WANCfg.xml</SCPDURL>
+                    </service>
+                </serviceList>
+                <deviceList>
+                    <device>
+                        <deviceType>urn:schemas-upnp-org:device:WANConnectionDevice:1</deviceType>
+                        <friendlyName>Compal Broadband Networks, Inc CH7465LG</friendlyName>
+                        <manufacturer>Compal Broadband Networks, Inc</manufacturer>
+                        <manufacturerURL>http://www.icbn.com.tw</manufacturerURL>
+                        <modelDescription> CH7465LG</modelDescription>
+                        <modelName> CH7465LG</modelName>
+                        <modelNumber> CH7465LG</modelNumber>
+                        <modelURL> CH7465LG</modelURL>
+                        <serialNumber>DDAP52813</serialNumber>
+                        <UDN>uuid:A37351C5-8521-4c24-A43E-DC537CBA5DE8</UDN>
+                        <UPC>unimplemented</UPC>
+                        <serviceList>
+                            <service>
+                                <serviceType>urn:schemas-upnp-org:service:WANIPConnection:1</serviceType>
+                                <serviceId>urn:upnp-org:serviceId:WANIPConn1</serviceId>
+                                <controlURL>/ctl/IPConn</controlURL>
+                                <eventSubURL>/evt/IPConn</eventSubURL>
+                                <SCPDURL>/WANIPCn.xml</SCPDURL>
+                            </service>
+                        </serviceList>
+                    </device>
+                </deviceList>
+            </device>
+        </deviceList>
+        <presentationURL>http://192.168.0.1/</presentationURL>
+    </device>
+</root>

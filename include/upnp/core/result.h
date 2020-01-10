@@ -8,7 +8,7 @@ namespace upnp {
 
     using outcome::success;
 
-#ifndef _NDEBUG // if debug
+#ifndef NDEBUG // if debug
     template<class V, class E = boost::system::error_code>
     using result = outcome::result<
                      V,

@@ -24,8 +24,15 @@ consume_endpoint(string_view& s)
         return none;
     }
 
+#if 0
+    // TODO: There is some issue with Boost.Asio not defining the make_address
+    // for string_view (Boost 1.71, not sure about 1.72) which results in
+    // undefined reference.
     std::string_view std_s(s.data(), pos);
     auto addr = net::ip::make_address(std_s, ec);
+#else
+    auto addr = net::ip::make_address(s.substr(0, pos).to_string(), ec);
+#endif
 
     if (ec) return none;
 

@@ -1,7 +1,7 @@
 
 #include <boost/asio/ip/tcp.hpp>
 #include <upnp/detail/local_address_to.h>
-#include <upnp/ssdp/query.h>
+#include <upnp/ssdp.h>
 #include <upnp/device.h>
 #include <upnp/config.h>
 #include <iostream>

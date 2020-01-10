@@ -22,6 +22,12 @@ int main()
 
         for (auto& igd : igds) {
             auto r = igd.add_port_mapping(9999, 9999, "test", chrono::minutes(5), yield);
+
+            if (r) {
+                cerr << "::: Success\n";
+            } else {
+                cerr << "::: Error: " << r.error() << "\n";
+            }
         }
     });
 

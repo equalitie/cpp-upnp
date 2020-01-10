@@ -3,6 +3,7 @@
 #include <upnp/core/beast.h>
 #include <upnp/url.h>
 #include <upnp/config.h>
+#include <upnp/detail/str/consume_endpoint.h>
 
 namespace upnp { namespace http {
 

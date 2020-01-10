@@ -40,7 +40,7 @@ igd::add_port_mapping( uint16_t external_port
 
     auto opt_local_ip = local_address_to(*opt_remote_ep);
     if (!opt_local_ip)
-        return error::no_ep_to_igd{};
+        return error::no_endpoint_to_igd{};
 
     net::ip::address local_ip = *opt_local_ip;
 
@@ -75,8 +75,6 @@ igd::add_port_mapping( uint16_t external_port
     rq.body() = std::move(envelope);
     rq.prepare_payload();
 
-    std::cerr << rq << "\n";
-
     sys::error_code ec;
     beast::tcp_stream stream(_exec);
     stream.expires_after(std::chrono::seconds(5));
@@ -91,6 +89,10 @@ igd::add_port_mapping( uint16_t external_port
 
     beast::http::async_read(stream, b, rs, yield[ec]);
     if (ec) return error::cant_receive{};
+
+    if (rs.result() != beast::http::status::ok) {
+        return error::bad_response_status{rs.result()};
+    }
 
     return success();
 }

@@ -1,8 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <iostream>
-
 #include <boost/intrusive/list.hpp>
 
 namespace upnp {
@@ -81,8 +79,7 @@ public:
         return *this;
     }
 
-    template<typename... Args>
-    void operator()(Args&&... args)
+    void operator()()
     {
         ++_call_count;
 
@@ -90,7 +87,7 @@ public:
         for (auto& connection : connections) {
             try {
                 ++connection._call_count;
-                connection._slot(std::forward<Args>(args)...);
+                connection._slot();
             } catch (std::exception& e) {
                 assert(0);
             }

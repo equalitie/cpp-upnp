@@ -164,6 +164,12 @@ result<std::vector<igd>> igd::discover(net::executor exec, net::yield_context yi
         }
     }
 
-    return igds;
+    return std::move(igds);
 }
+
+inline
+void igd::stop() {
+    _cancel();
+}
+
 } // upnp namespace

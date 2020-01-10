@@ -1,6 +1,7 @@
 #pragma once
 
 #include <upnp/detail/namespaces.h>
+#include <upnp/detail/cancel.h>
 #include <upnp/core/result.h>
 #include <upnp/core/string_view.h>
 #include <upnp/core/variant.h>
@@ -11,7 +12,7 @@
 namespace upnp {
 
 // Internet Gateway Device
-class igd {
+class igd final {
 public:
     struct error {
         struct igd_host_parse_failed {};
@@ -59,6 +60,9 @@ public:
     };
 
 public:
+    igd(igd&&)            = default;
+    igd& operator=(igd&&) = default;
+
     static
     result<std::vector<igd>> discover(net::executor, net::yield_context);
 
@@ -81,6 +85,10 @@ public:
                     , std::chrono::seconds duration
                     , net::yield_context yield) noexcept;
 
+    void stop();
+
+    ~igd() { stop(); }
+
 private:
     igd( std::string   uuid
        , device        upnp_device
@@ -96,6 +104,7 @@ private:
     url_t         _url;
     std::string   _urn;
     net::executor _exec;
+    Cancel        _cancel;
 };
 
 } // namespace upnp

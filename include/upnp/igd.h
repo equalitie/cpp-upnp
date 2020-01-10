@@ -71,10 +71,6 @@ public:
         friend os_t& operator<<(os_t& os, const bad_response_status& e) {
             return os << "IGD resonded with non OK status " << e.status;
         }
-        friend std::ostream& operator<<(std::ostream& os, const add_port_mapping& e) {
-            return boost::apply_visitor(
-                    [&] (const auto& e) -> os_t& { return os << e; }, e);
-        }
     };
 
 public:

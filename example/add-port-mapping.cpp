@@ -21,7 +21,7 @@ int main()
         auto igds = move(r_igds.value());
 
         for (auto& igd : igds) {
-            igd.add_port_mapping(9999, 9999, "test", chrono::minutes(5), yield);
+            auto r = igd.add_port_mapping(9999, 9999, "test", chrono::minutes(5), yield);
         }
     });
 

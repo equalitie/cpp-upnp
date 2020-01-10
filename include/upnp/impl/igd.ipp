@@ -24,20 +24,23 @@ igd::igd( std::string   uuid
 {}
 
 inline
-void igd::add_port_mapping( uint16_t external_port
-                          , uint16_t internal_port
-                          , string_view description
-                          , std::chrono::seconds duration
-                          , net::yield_context yield)
+result<void, igd::error::add_port_mapping>
+igd::add_port_mapping( uint16_t external_port
+                     , uint16_t internal_port
+                     , string_view description
+                     , std::chrono::seconds duration
+                     , net::yield_context yield) noexcept
 {
     using namespace std::chrono;
 
     auto host_port = _url.host_and_port();
     auto opt_remote_ep = str::consume_endpoint<net::ip::tcp>(host_port);
-    if (!opt_remote_ep) return;
+    if (!opt_remote_ep)
+        return error::igd_host_parse_failed{};
 
     auto opt_local_ip = local_address_to(*opt_remote_ep);
-    if (!opt_local_ip) return;
+    if (!opt_local_ip)
+        return error::no_ep_to_igd{};
 
     net::ip::address local_ip = *opt_local_ip;
 
@@ -78,18 +81,18 @@ void igd::add_port_mapping( uint16_t external_port
     beast::tcp_stream stream(_exec);
     stream.expires_after(std::chrono::seconds(5));
     stream.async_connect(*opt_remote_ep, yield[ec]);
-    if (ec) return;
+    if (ec) return error::cant_connect{};
 
     beast::http::async_write(stream, rq, yield[ec]);
-    if (ec) return;
+    if (ec) return error::cant_send{};
 
     beast::flat_buffer b;
     http::response rs;
 
     beast::http::async_read(stream, b, rs, yield[ec]);
-    if (ec) return;
+    if (ec) return error::cant_receive{};
 
-    std::cerr << rs << "\n";
+    return success();
 }
 
 /* static */

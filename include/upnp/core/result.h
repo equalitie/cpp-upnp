@@ -4,6 +4,7 @@
 
 namespace upnp {
 
+using boost::outcome_v2::success;
 using boost::outcome_v2::result;
 
 } // namespace upnp

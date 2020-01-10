@@ -25,7 +25,8 @@ igd::igd( std::string   uuid
 
 inline
 result<void, igd::error::add_port_mapping>
-igd::add_port_mapping( uint16_t external_port
+igd::add_port_mapping( protocol proto
+                     , uint16_t external_port
                      , uint16_t internal_port
                      , string_view description
                      , std::chrono::seconds duration
@@ -50,7 +51,7 @@ igd::add_port_mapping( uint16_t external_port
             "<NewRemoteHost></NewRemoteHost>"
             "<NewEnabled>1</NewEnabled>"
             "<NewExternalPort>"           << external_port     << "</NewExternalPort>"
-            "<NewProtocol>"               << "UDP"             << "</NewProtocol>"
+            "<NewProtocol>"               << proto             << "</NewProtocol>"
             "<NewInternalPort>"           << internal_port     << "</NewInternalPort>"
             "<NewInternalClient>"         << local_ip          << "</NewInternalClient>"
             "<NewPortMappingDescription>" << description       << "</NewPortMappingDescription>"

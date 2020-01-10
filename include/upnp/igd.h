@@ -13,7 +13,22 @@ namespace upnp {
 
 // Internet Gateway Device
 class igd final {
+private:
+    using os_t = std::ostream;
+
+    struct tcp_t {};
+    struct udp_t {};
+
+    friend os_t& operator<<(os_t& os, const tcp_t& e) { return os << "TCP"; }
+    friend os_t& operator<<(os_t& os, const udp_t& e) { return os << "UDP"; }
+
+    using protocol = variant<tcp_t, udp_t>;
+
 public:
+
+    static constexpr tcp_t tcp{};
+    static constexpr udp_t udp{};
+
     struct error {
         struct aborted {};
         struct igd_host_parse_failed {};
@@ -84,7 +99,8 @@ public:
     result< void
           , error::add_port_mapping
           >
-    add_port_mapping( uint16_t external_port
+    add_port_mapping( protocol
+                    , uint16_t external_port
                     , uint16_t internal_port
                     , string_view description
                     , std::chrono::seconds duration

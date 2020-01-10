@@ -15,6 +15,7 @@ namespace upnp {
 class igd final {
 public:
     struct error {
+        struct aborted {};
         struct igd_host_parse_failed {};
         struct no_endpoint_to_igd {};
         struct cant_connect {};
@@ -25,6 +26,7 @@ public:
         };
 
         using add_port_mapping = variant<
+            aborted,
             igd_host_parse_failed,
             no_endpoint_to_igd,
             cant_connect,
@@ -35,20 +37,23 @@ public:
 
         friend std::ostream& operator<<(std::ostream& os, const add_port_mapping& e) {
             using boost::get;
+            if (get<aborted>(&e)) {
+                os << "operation aborted";
+            } else
             if (get<igd_host_parse_failed>(&e)) {
-                os << "Failed to parse IGD host";
+                os << "failed to parse IGD host";
             } else
             if (get<no_endpoint_to_igd>(&e)) {
-                os << "No suitable endpoint to IGD";
+                os << "no suitable endpoint to IGD";
             } else
             if (get<cant_connect>(&e)) {
-                os << "Can't connect to IGD";
+                os << "can't connect to IGD";
             } else
             if (get<cant_send>(&e)) {
-                os << "Can't send request to IGD";
+                os << "can't send request to IGD";
             } else
             if (get<cant_receive>(&e)) {
-                os << "Can't receive response from IGD";
+                os << "can't receive response from IGD";
             } else
             if (auto p = get<bad_response_status>(&e)) {
                 os << "IGD resonded with non OK status " << p->status;

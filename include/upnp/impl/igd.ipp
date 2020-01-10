@@ -81,16 +81,21 @@ igd::add_port_mapping( uint16_t external_port
     beast::tcp_stream stream(_exec);
     stream.expires_after(std::chrono::seconds(5));
 
+    auto cancelled = _cancel.connect([&] { stream.close(); });
+
     stream.async_connect(*opt_remote_ep, yield[ec]);
+    if (cancelled) return error::aborted{};
     if (ec) return error::cant_connect{};
 
     http::async_write(stream, rq, yield[ec]);
+    if (cancelled) return error::aborted{};
     if (ec) return error::cant_send{};
 
     beast::flat_buffer b;
     http::response<http::string_body> rs;
 
     http::async_read(stream, b, rs, yield[ec]);
+    if (cancelled) return error::aborted{};
     if (ec) return error::cant_receive{};
 
     if (rs.result() != http::status::ok) {

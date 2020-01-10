@@ -2,8 +2,8 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <upnp/detail/local_address_to.h>
 #include <upnp/ssdp/query.h>
-#include <upnp/http.h>
 #include <upnp/device.h>
+#include <upnp/config.h>
 #include <iostream>
 
 namespace upnp {
@@ -32,6 +32,7 @@ igd::add_port_mapping( uint16_t external_port
                      , net::yield_context yield) noexcept
 {
     using namespace std::chrono;
+    namespace http = beast::http;
 
     auto host_port = _url.host_and_port();
     auto opt_remote_ep = str::consume_endpoint<net::ip::tcp>(host_port);
@@ -63,13 +64,13 @@ igd::add_port_mapping( uint16_t external_port
         "<s:Body>" + body.str() + "</s:Body>"
         "</s:Envelope>";
 
-    beast::http::request<beast::http::string_body> rq{beast::http::verb::post, _url, 11};
-    rq.set(beast::http::field::host, _url.host_and_port());
-    rq.set(beast::http::field::user_agent, CPP_UPNP_HTTP_USER_AGENT);
-    rq.set(beast::http::field::content_type, "text/xml; charset=\"utf-8\"");
-    rq.set(beast::http::field::connection, "Close");
-    rq.set(beast::http::field::cache_control, "no-cache");
-    rq.set(beast::http::field::pragma, "no-cache");
+    http::request<http::string_body> rq{http::verb::post, _url, 11};
+    rq.set(http::field::host, _url.host_and_port());
+    rq.set(http::field::user_agent, CPP_UPNP_HTTP_USER_AGENT);
+    rq.set(http::field::content_type, "text/xml; charset=\"utf-8\"");
+    rq.set(http::field::connection, "Close");
+    rq.set(http::field::cache_control, "no-cache");
+    rq.set(http::field::pragma, "no-cache");
     rq.set("SOAPAction", _urn + "#" + "AddPortMapping");
 
     rq.body() = std::move(envelope);
@@ -81,16 +82,16 @@ igd::add_port_mapping( uint16_t external_port
     stream.async_connect(*opt_remote_ep, yield[ec]);
     if (ec) return error::cant_connect{};
 
-    beast::http::async_write(stream, rq, yield[ec]);
+    http::async_write(stream, rq, yield[ec]);
     if (ec) return error::cant_send{};
 
     beast::flat_buffer b;
-    http::response rs;
+    http::response<http::string_body> rs;
 
-    beast::http::async_read(stream, b, rs, yield[ec]);
+    http::async_read(stream, b, rs, yield[ec]);
     if (ec) return error::cant_receive{};
 
-    if (rs.result() != beast::http::status::ok) {
+    if (rs.result() != http::status::ok) {
         return error::bad_response_status{rs.result()};
     }
 
@@ -110,17 +111,9 @@ result<std::vector<igd>> igd::discover(net::executor exec, net::yield_context yi
 
     auto& qr = qrr.value();
 
-    auto rsr = http::get(exec, qr.location, yield);
-    if (!rsr) return rsr.error();
-    auto& rs = rsr.value();
-
-    if (rs.result() != beast::http::status::ok) {
-        return sys::errc::protocol_error;
-    }
-
-    auto opt_root_dev = device::parse_root(rs.body());
-    if (!opt_root_dev) return sys::errc::io_error;
-    auto& root_dev = *opt_root_dev;
+    auto res_root_dev = query_root_device(exec, qr.location, yield);
+    if (!res_root_dev) return sys::errc::io_error;
+    auto& root_dev = res_root_dev.value();
 
     string v;
 
@@ -165,6 +158,55 @@ result<std::vector<igd>> igd::discover(net::executor exec, net::yield_context yi
     }
 
     return std::move(igds);
+}
+
+/* static */
+inline
+result<device>
+igd::query_root_device( net::executor exec
+                      , const url_t& url
+                      , net::yield_context yield) noexcept
+{
+    namespace http = beast::http;
+    using request  = http::request<http::empty_body>;
+    using response = http::response<http::string_body>;
+
+    error_code ec;
+    net::ip::tcp::resolver resolver(exec);
+
+    auto hp = url.host_and_port();
+    auto ep = str::consume_endpoint<net::ip::tcp>(hp);
+
+    if (!ep) return sys::errc::invalid_argument;
+
+    beast::tcp_stream stream(exec);
+    stream.expires_after(std::chrono::seconds(5));
+
+    stream.async_connect(*ep, yield[ec]);
+    if (ec) return ec;
+
+    request rq{http::verb::get, url.path(), 11};
+
+    rq.set(http::field::host, url.host_and_port());
+    rq.set(http::field::user_agent, CPP_UPNP_HTTP_USER_AGENT);
+
+    http::async_write(stream, rq, yield[ec]);
+    if (ec) return ec;
+
+    beast::flat_buffer b;
+    response rs;
+
+    http::async_read(stream, b, rs, yield[ec]);
+    if (ec) return ec;
+
+    if (rs.result() != beast::http::status::ok) {
+        return sys::errc::protocol_error;
+    }
+
+    auto opt_root_dev = device::parse_root(rs.body());
+    if (!opt_root_dev) return sys::errc::io_error;
+
+    return std::move(*opt_root_dev);
 }
 
 inline

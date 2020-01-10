@@ -1,4 +1,4 @@
-#include <upnp.hpp>
+#include <upnp.h>
 #include <iostream>
 
 using namespace std;

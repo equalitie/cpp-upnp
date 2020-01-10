@@ -50,32 +50,30 @@ public:
             bad_response_status
         >;
 
+        friend os_t& operator<<(os_t& os, const aborted&) {
+            return os << "operation aborted";
+        }
+        friend os_t& operator<<(os_t& os, const igd_host_parse_failed&) {
+            return os << "failed to parse IGD host";
+        }
+        friend os_t& operator<<(os_t& os, const no_endpoint_to_igd&) {
+            return os << "no suitable endpoint to IGD";
+        }
+        friend os_t& operator<<(os_t& os, const cant_connect&) {
+            return os << "can't connect to IGD";
+        }
+        friend os_t& operator<<(os_t& os, const cant_send&) {
+            return os << "can't send request to IGD";
+        }
+        friend os_t& operator<<(os_t& os, const cant_receive&) {
+            return os << "can't receive response from IGD";
+        }
+        friend os_t& operator<<(os_t& os, const bad_response_status& e) {
+            return os << "IGD resonded with non OK status " << e.status;
+        }
         friend std::ostream& operator<<(std::ostream& os, const add_port_mapping& e) {
-            using boost::get;
-            if (get<aborted>(&e)) {
-                os << "operation aborted";
-            } else
-            if (get<igd_host_parse_failed>(&e)) {
-                os << "failed to parse IGD host";
-            } else
-            if (get<no_endpoint_to_igd>(&e)) {
-                os << "no suitable endpoint to IGD";
-            } else
-            if (get<cant_connect>(&e)) {
-                os << "can't connect to IGD";
-            } else
-            if (get<cant_send>(&e)) {
-                os << "can't send request to IGD";
-            } else
-            if (get<cant_receive>(&e)) {
-                os << "can't receive response from IGD";
-            } else
-            if (auto p = get<bad_response_status>(&e)) {
-                os << "IGD resonded with non OK status " << p->status;
-            } else {
-                os << "Unknown error";
-            }
-            return os;
+            return boost::apply_visitor(
+                    [&] (const auto& e) -> os_t& { return os << e; }, e);
         }
     };
 

@@ -77,8 +77,10 @@ igd::add_port_mapping( uint16_t external_port
     rq.prepare_payload();
 
     sys::error_code ec;
+
     beast::tcp_stream stream(_exec);
     stream.expires_after(std::chrono::seconds(5));
+
     stream.async_connect(*opt_remote_ep, yield[ec]);
     if (ec) return error::cant_connect{};
 

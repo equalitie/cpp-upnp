@@ -8,8 +8,6 @@ int main()
 {
     net::io_context ctx;
 
-    namespace pt = boost::property_tree;
-
     net::spawn(ctx, [&] (net::yield_context yield) {
         auto r_igds = upnp::igd::discover(ctx.get_executor(), yield);
 

@@ -199,7 +199,6 @@ inline
 result<query> query::start(net::executor exec, net::yield_context yield)
 {
     auto st = std::make_shared<state_t>(exec);
-    error_code ec;
     auto r = st->start(yield);
     if (!r) return r.error();
     return query{std::move(st)};

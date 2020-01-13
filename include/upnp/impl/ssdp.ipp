@@ -6,6 +6,7 @@
 #include <upnp/detail/str/istarts_with.h>
 #include <upnp/detail/str/trim.h>
 #include <boost/asio/ip/multicast.hpp>
+#include <boost/asio/steady_timer.hpp>
 #include <chrono>
 #include <queue>
 
@@ -14,15 +15,18 @@ namespace upnp { namespace ssdp {
 struct query::state_t : std::enable_shared_from_this<state_t> {
     net::executor _exec;
     net::ip::udp::socket _socket;
+    net::steady_timer _timer;
     ConditionVariable _cv;
     const net::ip::udp::endpoint _multicast_ep;
     std::queue<query::response> _responses;
-    bool _called_stop = false;
+
+    optional<error_code> _stop_ec;
     optional<error_code> _rx_ec;
 
     state_t(net::executor exec)
         : _exec(std::move(exec))
         , _socket(_exec, net::ip::udp::v4())
+        , _timer(_exec)
         , _cv(_exec)
         // https://www.grc.com/port_1900.htm
         , _multicast_ep(net::ip::address_v4({239, 255, 255, 250}), 1900)
@@ -32,7 +36,7 @@ struct query::state_t : std::enable_shared_from_this<state_t> {
 
     result<void> start(net::yield_context);
 
-    void stop();
+    void stop(error_code);
 };
 
 inline
@@ -71,6 +75,14 @@ result<void> query::state_t::start(net::yield_context yield)
     if (ec) return ec;
 
     net::spawn(_exec, [&, self = shared_from_this()] (auto y) {
+        _timer.expires_after(std::chrono::seconds(3));
+        _timer.async_wait([&, self] (error_code) {
+            if (_rx_ec) return;
+            _rx_ec = net::error::timed_out;
+            error_code ignored_ec;
+            _socket.close(ignored_ec);
+        });
+
         while (true) {
             std::array<char, 32*1024> rx;
             net::ip::udp::endpoint ep;
@@ -79,8 +91,8 @@ result<void> query::state_t::start(net::yield_context yield)
             size_t size = _socket.async_receive_from(b, ep, y[ec]);
 
             if (!_rx_ec) {
-                if (_called_stop) _rx_ec = net::error::operation_aborted;
-                else if (ec)      _rx_ec = ec;
+                if (_stop_ec) _rx_ec = _stop_ec;
+                else if (ec)  _rx_ec = ec;
             }
             if (_rx_ec) break;
 
@@ -102,8 +114,8 @@ result<query::response> query::state_t::get_response(net::yield_context yield)
 
     using namespace net::error;
 
-    if (_called_stop) {
-        return operation_aborted;
+    if (_stop_ec) {
+        return *_stop_ec;
     }
 
     while (_responses.empty()) {
@@ -171,10 +183,10 @@ result<query::response> query::response::parse(string_view lines)
     return std::move(ret);
 }
 
-inline void query::state_t::stop() {
-    sys::error_code ec;
-    _called_stop = true;
+inline void query::state_t::stop(error_code ec) {
+    _stop_ec = ec;
     _socket.close(ec);
+    _timer.cancel();
 }
 
 inline
@@ -200,7 +212,7 @@ result<query::response> query::get_response(net::yield_context yield)
 }
 
 inline void query::stop() {
-    _state->stop();
+    _state->stop(net::error::operation_aborted);
     _state = nullptr;
 }
 

@@ -167,6 +167,7 @@ optional<url_t> url_t::parse(std::string url_) {
     return ret;
 }
 
+inline
 std::ostream& operator<<(std::ostream& os, const url_t& u) {
     if (!u._scheme.empty())   os << u._scheme << "://";
     if (!u._userinfo.empty()) os << u._userinfo << "@";

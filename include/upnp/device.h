@@ -96,6 +96,7 @@ template<class T> struct pretty_printer {
     pretty_printer(const T& v, unsigned level) : v(v), level(level) {}
 };
 
+inline
 std::ostream& operator<<(std::ostream& os, const pretty_printer<service>& pd) {
     std::string pad(pd.level * 2, ' ');
     os << pad << pd.v.id << "\n";
@@ -104,6 +105,7 @@ std::ostream& operator<<(std::ostream& os, const pretty_printer<service>& pd) {
     return os;
 }
 
+inline
 std::ostream& operator<<(std::ostream& os, const pretty_printer<device>& pd) {
     std::string pad(pd.level * 2, ' ');
     os << pad << pd.v.type << "\n";

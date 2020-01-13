@@ -123,7 +123,7 @@ private:
     url_t         _url;
     std::string   _urn;
     net::executor _exec;
-    Cancel        _cancel;
+    cancel_t      _cancel;
 };
 
 } // namespace upnp

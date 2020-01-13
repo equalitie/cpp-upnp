@@ -36,7 +36,7 @@ public:
     void notify(const boost::system::error_code& ec
                     = boost::system::error_code());
 
-    void wait(Cancel&, net::yield_context yield);
+    void wait(cancel_t&, net::yield_context yield);
     void wait(net::yield_context yield);
 
 private:
@@ -67,7 +67,7 @@ void ConditionVariable::notify(const boost::system::error_code& ec)
 }
 
 inline
-void ConditionVariable::wait(Cancel& cancel, net::yield_context yield)
+void ConditionVariable::wait(cancel_t& cancel, net::yield_context yield)
 {
     auto work = net::make_work_guard(_exec);
 
@@ -92,7 +92,7 @@ void ConditionVariable::wait(Cancel& cancel, net::yield_context yield)
 inline
 void ConditionVariable::wait(boost::asio::yield_context yield)
 {
-    Cancel dummy_cancel;
+    cancel_t dummy_cancel;
     wait(dummy_cancel, yield);
 }
 

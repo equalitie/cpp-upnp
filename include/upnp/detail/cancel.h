@@ -5,7 +5,7 @@
 
 namespace upnp {
 
-class Cancel {
+class cancel_t {
 private:
     template<class K>
     using List = boost::intrusive::list<K, boost::intrusive::constant_time_size<false>>;
@@ -38,22 +38,22 @@ public:
         operator bool() const { return call_count() != 0; }
 
     private:
-        friend class Cancel;
+        friend class cancel_t;
         std::function<void()> _slot;
         size_t _call_count = 0;
     };
 
 public:
-    Cancel()                    = default;
+    cancel_t()                    = default;
 
-    Cancel(const Cancel&)            = delete;
-    Cancel& operator=(const Cancel&) = delete;
+    cancel_t(const cancel_t&)            = delete;
+    cancel_t& operator=(const cancel_t&) = delete;
 
-    Cancel(Cancel& parent)
+    cancel_t(cancel_t& parent)
         : _parent_connection(parent.connect(call_to_self()))
     {}
 
-    Cancel(Cancel&& other)
+    cancel_t(cancel_t&& other)
         : _connections(std::move(other._connections))
         , _call_count(other._call_count)
     {
@@ -65,7 +65,7 @@ public:
         }
     }
 
-    Cancel& operator=(Cancel&& other)
+    cancel_t& operator=(cancel_t&& other)
     {
         _connections = std::move(other._connections);
         _call_count = other._call_count;

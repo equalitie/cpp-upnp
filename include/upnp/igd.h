@@ -16,17 +16,13 @@ class igd final {
 private:
     using os_t = std::ostream;
 
-    struct tcp_t {};
-    struct udp_t {};
-
-    friend os_t& operator<<(os_t& os, const tcp_t& e) { return os << "TCP"; }
-    friend os_t& operator<<(os_t& os, const udp_t& e) { return os << "UDP"; }
 
 public:
-    static constexpr tcp_t tcp{};
-    static constexpr udp_t udp{};
+    enum protocol { tcp, udp };
 
-    using protocol = variant<tcp_t, udp_t>;
+    friend os_t& operator<<(os_t& os, const protocol& p) {
+        return os << (p == tcp ? "TCP" : "UDP");
+    }
 
 public:
     struct error {

@@ -112,9 +112,10 @@ result<std::vector<igd>> igd::discover(net::executor exec, net::yield_context yi
 {
     using namespace std;
 
-    ssdp::query q(exec);
+    auto q = ssdp::query::start(exec, yield);
+    if (!q) return q.error();
 
-    auto qrr = q.get_one(yield);
+    auto qrr = q.value().get_response(yield);
     if (!qrr) return qrr.error();
 
     auto& qr = qrr.value();

@@ -86,6 +86,10 @@ public:
             invalid_xml_body,
             invalid_response
         >;
+
+        using delete_port_mapping = variant<
+            soap_request
+        >;
     };
 
 public:
@@ -132,6 +136,11 @@ public:
                              , uint16_t max_port
                              , uint16_t max_count
                              , net::yield_context yield) noexcept;
+
+    result<void, error::delete_port_mapping>
+    delete_port_mapping( protocol
+                       , uint16_t ext_port
+                       , net::yield_context yield) noexcept;
 
     void stop();
 

@@ -106,7 +106,7 @@ igd::get_list_of_port_mappings( protocol proto
         "<NewEndPort>" << max_port << "</NewEndPort>"
         "<NewProtocol>" << proto << "</NewProtocol>"
         "<NewNumberOfPorts>" << max_count << "</NewNumberOfPorts>"
-        "<u:GetListOfPortMappings>";
+        "</u:GetListOfPortMappings>";
 
     auto rs = soap_request("GetListOfPortMappings", body.str(), yield);
     if (!rs) return rs.error();
@@ -158,6 +158,25 @@ igd::get_list_of_port_mappings( protocol proto
     }
 
     return std::move(entries);
+}
+
+inline
+result<void, igd::error::delete_port_mapping>
+igd::delete_port_mapping( protocol proto
+                        , uint16_t ext_port
+                        , net::yield_context yield) noexcept
+{
+    std::stringstream body;
+    body <<
+        "<u:DeletePortMapping xmlns:u=\"" + _urn + "\"/>"
+        "<NewProtocol>" << proto << "</NewProtocol>"
+        "<NewExternalPort>" << proto << "</NewExternalPort>"
+        "<NewRemoteHost></NewRemoteHost>"
+        "</u:DeletePortMapping>";
+
+    auto rs = soap_request("DeletePortMapping", body.str(), yield);
+    if (!rs) return rs.error();
+    return success();
 }
 
 inline

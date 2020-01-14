@@ -19,6 +19,15 @@ int main()
         auto igds = move(r_igds.value());
 
         for (auto& igd : igds) {
+            auto ext_r = igd.get_external_address(yield);
+
+            if (!ext_r) {
+                cerr << "Failed to get external IP address " << ext_r.error()
+                     << "\n";
+            } else {
+                cerr << "Got external IP address: " << ext_r.value() << "\n";
+            }
+
             auto r = igd.add_port_mapping( upnp::igd::udp
                                          , 9999
                                          , 9999

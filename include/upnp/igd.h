@@ -28,23 +28,14 @@ public:
     struct error {
         struct aborted {};
         struct igd_host_parse_failed {};
+        struct soap_request {};
         struct no_endpoint_to_igd {};
-        struct cant_connect {};
-        struct cant_send {};
-        struct cant_receive {};
         struct bad_response_status {
             beast::http::status status;
         };
-
-        using add_port_mapping = variant<
-            aborted,
-            igd_host_parse_failed,
-            no_endpoint_to_igd,
-            cant_connect,
-            cant_send,
-            cant_receive,
-            bad_response_status
-        >;
+        struct invalid_xml_body {};
+        struct bad_result {};
+        struct bad_address {};
 
         friend os_t& operator<<(os_t& os, const aborted&) {
             return os << "operation aborted";
@@ -52,21 +43,40 @@ public:
         friend os_t& operator<<(os_t& os, const igd_host_parse_failed&) {
             return os << "failed to parse IGD host";
         }
+        friend os_t& operator<<(os_t& os, const soap_request&) {
+            return os << "failed to do soap request";
+        }
         friend os_t& operator<<(os_t& os, const no_endpoint_to_igd&) {
             return os << "no suitable endpoint to IGD";
-        }
-        friend os_t& operator<<(os_t& os, const cant_connect&) {
-            return os << "can't connect to IGD";
-        }
-        friend os_t& operator<<(os_t& os, const cant_send&) {
-            return os << "can't send request to IGD";
-        }
-        friend os_t& operator<<(os_t& os, const cant_receive&) {
-            return os << "can't receive response from IGD";
         }
         friend os_t& operator<<(os_t& os, const bad_response_status& e) {
             return os << "IGD resonded with non OK status " << e.status;
         }
+        friend os_t& operator<<(os_t& os, const invalid_xml_body&) {
+            return os << "failed to parse xml body";
+        }
+        friend os_t& operator<<(os_t& os, const bad_result&) {
+            return os << "bad result";
+        }
+        friend os_t& operator<<(os_t& os, const bad_address&) {
+            return os << "bad address";
+        }
+
+        using add_port_mapping = variant<
+            aborted,
+            igd_host_parse_failed,
+            soap_request,
+            no_endpoint_to_igd,
+            bad_response_status
+        >;
+
+        using get_external_address = variant<
+            soap_request,
+            bad_response_status,
+            invalid_xml_body,
+            bad_result,
+            bad_address
+        >;
     };
 
 public:
@@ -96,6 +106,11 @@ public:
                     , std::chrono::seconds duration
                     , net::yield_context yield) noexcept;
 
+    result< net::ip::address
+          , error::get_external_address
+          >
+    get_external_address(net::yield_context yield) noexcept;
+
     void stop();
 
     ~igd() { stop(); }
@@ -111,6 +126,11 @@ private:
     static
     result<device>
     query_root_device(net::executor, const url_t&, net::yield_context) noexcept;
+
+    result<beast::http::response<beast::http::string_body>>
+    soap_request( string_view command
+                , string_view message
+                , net::yield_context) noexcept;
 
 private:
     std::string   _uuid;

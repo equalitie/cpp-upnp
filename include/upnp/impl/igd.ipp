@@ -33,7 +33,6 @@ igd::add_port_mapping( protocol proto
                      , net::yield_context yield) noexcept
 {
     using namespace std::chrono;
-    namespace http = beast::http;
 
     auto host_port = _url.host_and_port();
     auto opt_remote_ep = str::consume_endpoint<net::ip::tcp>(host_port);
@@ -56,13 +55,72 @@ igd::add_port_mapping( protocol proto
             "<NewInternalClient>"         << local_ip          << "</NewInternalClient>"
             "<NewPortMappingDescription>" << description       << "</NewPortMappingDescription>"
             "<NewLeaseDuration>"          << duration.count()  << "</NewLeaseDuration>"
+            "<NewLeaseDuration>"          << 0  << "</NewLeaseDuration>"
             "</u:AddPortMapping>";
 
-    std::string envelope =
+    auto rs = soap_request("AddPortMapping", body.str(), yield);
+    if (!rs) return error::soap_request{};
+
+    auto result = rs.value().result();
+    if (result != beast::http::status::ok) {
+        return error::bad_response_status{result};
+    }
+
+    return success();
+}
+
+inline
+result<net::ip::address, igd::error::get_external_address>
+igd::get_external_address(net::yield_context yield) noexcept
+{
+    std::string body =
+        "<u:GetExternalIPAddress xmlns:u\"urn:schemas-upnp-org:service:WANIPConnection:1\"/>";
+
+    auto rs = soap_request("GetExternalIPAddress", body, yield);
+    if (!rs) return error::soap_request{};
+
+    auto result = rs.value().result();
+    if (result != beast::http::status::ok) {
+        return error::bad_response_status{result};
+    }
+
+    auto opt_xml = xml::parse(rs.value().body());
+    if (!opt_xml) return error::invalid_xml_body{};
+    auto& xml_rs = *opt_xml;
+
+    const char* path = "s:Envelope.s:Body.u:GetExternalIPAddressResponse."
+                       "NewExternalIPAddress";
+
+    auto opt_ip_s = xml_rs.get_optional<std::string>(path);
+    if (!opt_ip_s) return error::bad_result{};
+    auto& ip_s = *opt_ip_s;
+
+    sys::error_code ec;
+    auto addr = net::ip::make_address(ip_s, ec);
+    if (ec) return error::bad_address{};
+
+    return std::move(addr);
+}
+
+inline
+result<beast::http::response<beast::http::string_body>>
+igd::soap_request( string_view command
+                 , string_view message
+                 , net::yield_context yield) noexcept
+{
+    using namespace std::chrono;
+    namespace http = beast::http;
+
+    auto host_port = _url.host_and_port();
+    auto opt_remote_ep = str::consume_endpoint<net::ip::tcp>(host_port);
+    if (!opt_remote_ep)
+        return net::error::invalid_argument;
+
+    std::string body =
         "<?xml version=\"1.0\" ?>"
         "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" "
                     "s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"
-        "<s:Body>" + body.str() + "</s:Body>"
+        "<s:Body>" + message.to_string() + "</s:Body>"
         "</s:Envelope>";
 
     http::request<http::string_body> rq{http::verb::post, _url, 11};
@@ -72,10 +130,13 @@ igd::add_port_mapping( protocol proto
     rq.set(http::field::connection, "Close");
     rq.set(http::field::cache_control, "no-cache");
     rq.set(http::field::pragma, "no-cache");
-    rq.set("SOAPAction", _urn + "#" + "AddPortMapping");
+    rq.set("SOAPAction", _urn + "#" + command.to_string());
 
-    rq.body() = std::move(envelope);
+    rq.body() = std::move(body);
     rq.prepare_payload();
+
+    //std::cerr << "----------------------------------------\n";
+    //std::cerr << rq;
 
     sys::error_code ec;
 
@@ -85,25 +146,24 @@ igd::add_port_mapping( protocol proto
     auto cancelled = _cancel.connect([&] { stream.close(); });
 
     stream.async_connect(*opt_remote_ep, yield[ec]);
-    if (cancelled) return error::aborted{};
-    if (ec) return error::cant_connect{};
+    if (cancelled) return net::error::operation_aborted;
+    if (ec) return ec;
 
     http::async_write(stream, rq, yield[ec]);
-    if (cancelled) return error::aborted{};
-    if (ec) return error::cant_send{};
+    if (cancelled) return net::error::operation_aborted;
+    if (ec) return ec;
 
     beast::flat_buffer b;
     http::response<http::string_body> rs;
 
     http::async_read(stream, b, rs, yield[ec]);
-    if (cancelled) return error::aborted{};
-    if (ec) return error::cant_receive{};
+    if (cancelled) return net::error::operation_aborted;
+    if (ec) return ec;
 
-    if (rs.result() != http::status::ok) {
-        return error::bad_response_status{rs.result()};
-    }
+    //std::cerr << rs;
+    //std::cerr << "----------------------------------------\n";
 
-    return success();
+    return std::move(rs);
 }
 
 /* static */

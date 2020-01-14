@@ -170,7 +170,7 @@ igd::delete_port_mapping( protocol proto
     body <<
         "<u:DeletePortMapping xmlns:u=\"" + _urn + "\"/>"
         "<NewProtocol>" << proto << "</NewProtocol>"
-        "<NewExternalPort>" << proto << "</NewExternalPort>"
+        "<NewExternalPort>" << ext_port << "</NewExternalPort>"
         "<NewRemoteHost></NewRemoteHost>"
         "</u:DeletePortMapping>";
 

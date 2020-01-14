@@ -180,8 +180,7 @@ igd::delete_port_mapping( protocol proto
 }
 
 inline
-result< beast::http::response<beast::http::string_body>
-      , igd::error::soap_request>
+result<igd::soap_response, igd::error::soap_request>
 igd::soap_request( string_view command
                  , string_view message
                  , net::yield_context yield) noexcept
@@ -228,7 +227,7 @@ igd::soap_request( string_view command
     if (ec) return error::http_request{};
 
     beast::flat_buffer b;
-    http::response<http::string_body> rs;
+    soap_response rs;
 
     http::async_read(stream, b, rs, yield[ec]);
     if (ec) return error::http_response{};

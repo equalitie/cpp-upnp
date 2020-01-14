@@ -1,6 +1,8 @@
 #pragma once
 
 #include <upnp/core/optional.h>
+#include <upnp/detail/str/consume_number.h>
+#include <upnp/detail/str/parse_address.h>
 
 #if defined(BOOST_PROPERTY_TREE_RAPIDXML_STATIC_POOL_SIZE) \
     && BOOST_PROPERTY_TREE_RAPIDXML_STATIC_POOL_SIZE > 512
@@ -32,6 +34,23 @@ inline optional<tree> parse(const std::string& xml_str) {
     } catch (std::exception& e) {
         return none;
     }
+
+}
+
+template<class Num>
+inline
+optional<Num> get_num(tree t, const char* tag) {
+    auto s = t.get_optional<std::string>(tag);
+    if (!s) return none;
+    string_view sv(*s);
+    return str::consume_number<Num>(sv);
+}
+
+inline
+optional<net::ip::address> get_address(tree t, const char* tag) {
+    auto s = t.get_optional<std::string>(tag);
+    if (!s) return none;
+    return str::parse_address(*s);
 }
 
 }} // upnp::xml namespace

@@ -1,5 +1,7 @@
 
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/optional/optional_io.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <upnp/detail/local_address_to.h>
 #include <upnp/ssdp.h>
 #include <upnp/device.h>
@@ -88,6 +90,74 @@ igd::get_external_address(net::yield_context yield) noexcept
     if (ec) return error::bad_address{};
 
     return std::move(addr);
+}
+
+result<std::vector<igd::map_entry>, igd::error::get_list_of_port_mappings>
+igd::get_list_of_port_mappings( protocol proto
+                              , uint16_t start
+                              , uint16_t end
+                              , uint16_t max_count
+                              , net::yield_context yield) noexcept
+{
+    std::stringstream body;
+    body <<
+        "<u:GetListOfPortMappings xmlns:u=\"" << _urn << "\">"
+        "<NewStartPort>" << start << "</NewStartPort>"
+        "<NewEndPort>" << end << "</NewEndPort>"
+        "<NewProtocol>" << proto << "</NewProtocol>"
+        "<NewNumberOfPorts>" << max_count << "</NewNumberOfPorts>"
+        "<u:GetListOfPortMappings>";
+
+    auto rs = soap_request("GetListOfPortMappings", body.str(), yield);
+    if (!rs) return rs.error();
+
+    auto b = std::move(rs.value().body());
+
+    auto opt_xml = xml::parse(b);
+    if (!opt_xml) return error::invalid_xml_body{};
+    auto& xml_rs = *opt_xml;
+
+    const char* path = "s:Envelope.s:Body.u:GetListOfPortMappingsResponse.NewPortListing";
+
+    auto o1 = xml_rs.get_optional<std::string>(path);
+    if (!o1) return error::invalid_response{};
+    auto o2 = xml::parse(*o1);
+    if (!o2) return error::invalid_response{};
+    auto o3 = o2->get_child_optional("p:PortMappingList");
+    if (!o3) return error::invalid_response{};
+
+    std::vector<map_entry> entries;
+
+    for (auto& e : *o3) {
+        if (e.first != "p:PortMappingEntry") continue;
+        auto& child = e.second;
+
+        auto oext = xml::get_num<uint16_t>(child, "p:NewExternalPort");
+        auto oint = xml::get_num<uint16_t>(child, "p:NewInternalPort");
+        auto ocli = xml::get_address      (child, "p:NewInternalClient");
+        auto oena = xml::get_num<uint16_t>(child, "p:NewEnabled");
+        auto olea = xml::get_num<uint32_t>(child, "p:NewLeaseTime");
+        auto odes = child.get_optional<std::string>("p:NewDescription");
+        auto opro = child.get_optional<std::string>("p:NewProtocol");
+
+        if (!oext || !oint || !ocli || !oena || !olea || !odes || !opro)
+            continue;
+
+        protocol proto = tcp;
+
+        if      (*opro == "UDP") proto = udp;
+        else if (*opro == "TCP") proto = tcp;
+        else continue;
+
+        entries.push_back({ std::move(*odes)
+                          , *oext
+                          , *oint
+                          , std::chrono::seconds(*olea)
+                          , proto
+                          , std::move(*ocli)});
+    }
+
+    return std::move(entries);
 }
 
 inline

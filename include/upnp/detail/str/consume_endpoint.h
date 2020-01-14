@@ -1,9 +1,6 @@
 #pragma once
 
-#include <boost/asio/ip/address.hpp>
-#include <upnp/core/string_view.h>
-#include <upnp/core/optional.h>
-#include <upnp/detail/str/consume_number.h>
+#include <upnp/detail/str/parse_address.h>
 #include <upnp/detail/namespaces.h>
 
 namespace upnp { namespace str {
@@ -18,23 +15,13 @@ consume_endpoint(string_view& s)
     using namespace std;
     auto pos = s.rfind(':');
 
-    error_code ec;
-
     if (pos == string::npos) {
         return none;
     }
 
-#if 0
-    // TODO: There is some issue with Boost.Asio not defining the make_address
-    // for string_view (Boost 1.71, not sure about 1.72) which results in
-    // undefined reference.
-    std::string_view std_s(s.data(), pos);
-    auto addr = net::ip::make_address(std_s, ec);
-#else
-    auto addr = net::ip::make_address(s.substr(0, pos).to_string(), ec);
-#endif
+    auto addr = parse_address(s.substr(0, pos));
 
-    if (ec) return none;
+    if (!addr) return none;
 
     s = s.substr(pos+1);
 
@@ -45,7 +32,7 @@ consume_endpoint(string_view& s)
         return none;
     }
 
-    return typename Proto::endpoint{move(addr), *opt_port};
+    return typename Proto::endpoint{move(*addr), *opt_port};
 }
 
 }} // namespaces

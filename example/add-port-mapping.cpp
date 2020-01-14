@@ -19,26 +19,47 @@ int main()
         auto igds = move(r_igds.value());
 
         for (auto& igd : igds) {
-            auto ext_r = igd.get_external_address(yield);
+            {
+                auto r = igd.get_external_address(yield);
 
-            if (!ext_r) {
-                cerr << "Failed to get external IP address " << ext_r.error()
-                     << "\n";
-            } else {
-                cerr << "Got external IP address: " << ext_r.value() << "\n";
+                if (!r) {
+                    cerr << "Failed to get external IP address " << r.error()
+                         << "\n";
+                } else {
+                    cerr << "Got external IP address: " << r.value() << "\n";
+                }
             }
 
-            auto r = igd.add_port_mapping( upnp::igd::udp
-                                         , 9999
-                                         , 9999
-                                         , "test"
-                                         , chrono::minutes(5)
-                                         , yield);
+            {
+                auto r = igd.add_port_mapping( upnp::igd::udp
+                                             , 9999
+                                             , 9999
+                                             , "test"
+                                             , chrono::minutes(5)
+                                             , yield);
 
-            if (r) {
-                cerr << "::: Success\n";
-            } else {
-                cerr << "::: Error: " << r.error() << "\n";
+                if (r) {
+                    cerr << "::: Success\n";
+                } else {
+                    cerr << "::: Error: " << r.error() << "\n";
+                }
+            }
+
+            {
+                auto r = igd.get_list_of_port_mappings( upnp::igd::udp
+                                                      , 0 // 9998
+                                                      , 65535 // 10000
+                                                      , 100
+                                                      , yield);
+
+                if (r) {
+                    cerr << "::: Success " << r.value().size() << "\n";
+                    for (auto e : r.value()) {
+                        cerr << "  > " << e.ext_port << " " << e.int_port << " " << e.proto << " " << e.int_client << " " << e.lease_duration.count() << " " << e.description << "\n";
+                    }
+                } else {
+                    cerr << "::: Error: " << r.error() << "\n";
+                }
             }
         }
     });

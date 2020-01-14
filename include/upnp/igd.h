@@ -80,6 +80,12 @@ public:
             invalid_response,
             bad_address
         >;
+
+        using get_list_of_port_mappings = variant<
+            soap_request,
+            invalid_xml_body,
+            invalid_response
+        >;
     };
 
 public:
@@ -109,6 +115,23 @@ public:
 
     result<net::ip::address , error::get_external_address>
     get_external_address(net::yield_context yield) noexcept;
+
+    struct map_entry {
+        // TODO: There are others
+        std::string description;
+        uint16_t ext_port;
+        uint16_t int_port;
+        std::chrono::seconds lease_duration;
+        protocol proto;
+        net::ip::address int_client;
+    };
+
+    result<std::vector<map_entry>, error::get_list_of_port_mappings>
+    get_list_of_port_mappings( protocol
+                             , uint16_t start
+                             , uint16_t end
+                             , uint16_t max_count
+                             , net::yield_context yield) noexcept;
 
     void stop();
 

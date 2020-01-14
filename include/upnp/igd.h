@@ -96,6 +96,8 @@ public:
     igd(igd&&)            = default;
     igd& operator=(igd&&) = default;
 
+    const std::string& friendly_name() const { return _upnp_device.friendly_name; }
+
     static
     result<std::vector<igd>> discover(net::executor, net::yield_context);
 

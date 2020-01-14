@@ -4,6 +4,8 @@
 using namespace std;
 namespace net = upnp::net;
 
+const char* pad = "  ";
+
 void list_port_mappings(upnp::igd& igd, net::yield_context yield)
 {
     cerr << "Getting list of port mappings\n";
@@ -15,9 +17,9 @@ void list_port_mappings(upnp::igd& igd, net::yield_context yield)
                                           , yield);
 
     if (r) {
-        cerr << "    Success, found " << r.value().size() << " entries:\n";
+        cerr << pad << "Success, found " << r.value().size() << " entries:\n";
         for (auto e : r.value()) {
-            cerr << "    "
+            cerr << pad
                  << e.proto
                  << " EXT:" << e.ext_port
                  << " INT:" << e.int_port
@@ -26,7 +28,7 @@ void list_port_mappings(upnp::igd& igd, net::yield_context yield)
                  << " " << e.description << "\n";
         }
     } else {
-        cerr << "    Error: " << r.error() << "\n";
+        cerr << pad << "Error: " << r.error() << "\n";
     }
 }
 
@@ -35,9 +37,9 @@ void delete_port_mapping(upnp::igd& igd, uint16_t port, net::yield_context yield
     cerr << "Removing port mapping EXT:" << port << "\n";
     auto r = igd.delete_port_mapping(upnp::igd::udp, port, yield);
     if (r) {
-        cerr << "    Success\n";
+        cerr << pad << "Success\n";
     } else {
-        cerr << "    Error: " << r.error() << "\n";
+        cerr << pad << "Error: " << r.error() << "\n";
     }
 }
 
@@ -48,9 +50,9 @@ void get_external_address(upnp::igd& igd, net::yield_context yield)
     auto r = igd.get_external_address(yield);
 
     if (r) {
-        cerr << "    " << r.value() << "\n";
+        cerr << pad << r.value() << "\n";
     } else {
-        cerr << "    Error: " << r.error() << "\n";
+        cerr << pad << "Error: " << r.error() << "\n";
     }
 }
 
@@ -69,9 +71,9 @@ void add_port_mapping( upnp::igd& igd
                                  , yield);
 
     if (r) {
-        cerr << "    Success\n";
+        cerr << pad << "Success\n";
     } else {
-        cerr << "    Error: " << r.error() << "\n";
+        cerr << pad << "Error: " << r.error() << "\n";
     }
 }
 
@@ -84,9 +86,9 @@ int main()
         auto r_igds = upnp::igd::discover(ctx.get_executor(), yield);
 
         if (r_igds) {
-            cerr << "    Success" << "\n";
+            cerr << pad << "Success" << "\n";
         } else {
-            cerr << "    Error: " << r_igds.error() << "\n";
+            cerr << pad << "Error: " << r_igds.error() << "\n";
             return;
         }
 
@@ -96,6 +98,9 @@ int main()
             socket(ctx, net::ip::udp::endpoint(net::ip::address_v4::any(), 0));
 
         for (auto& igd : igds) {
+            cerr << "IGD:\n";
+            cerr << pad << igd.friendly_name() << "\n";
+
             get_external_address(igd, yield);
             add_port_mapping(igd, 7777, socket.local_endpoint().port(), yield);
             list_port_mappings(igd, yield);

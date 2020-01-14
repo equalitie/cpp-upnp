@@ -128,8 +128,8 @@ public:
 
     result<std::vector<map_entry>, error::get_list_of_port_mappings>
     get_list_of_port_mappings( protocol
-                             , uint16_t start
-                             , uint16_t end
+                             , uint16_t min_port
+                             , uint16_t max_port
                              , uint16_t max_count
                              , net::yield_context yield) noexcept;
 

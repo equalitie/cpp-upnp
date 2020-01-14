@@ -32,10 +32,10 @@ int main()
 
             {
                 auto r = igd.add_port_mapping( upnp::igd::udp
-                                             , 9999
-                                             , 9999
+                                             , 9998
+                                             , 9998
                                              , "test"
-                                             , chrono::minutes(5)
+                                             , chrono::minutes(1)
                                              , yield);
 
                 if (r) {
@@ -47,15 +47,20 @@ int main()
 
             {
                 auto r = igd.get_list_of_port_mappings( upnp::igd::udp
-                                                      , 0 // 9998
-                                                      , 65535 // 10000
+                                                      , 0
+                                                      , 65535
                                                       , 100
                                                       , yield);
 
                 if (r) {
                     cerr << "::: Success " << r.value().size() << "\n";
                     for (auto e : r.value()) {
-                        cerr << "  > " << e.ext_port << " " << e.int_port << " " << e.proto << " " << e.int_client << " " << e.lease_duration.count() << " " << e.description << "\n";
+                        cerr << e.proto
+                             << " EXT:" << e.ext_port
+                             << " INT:" << e.int_port
+                             << " ADDR:" << e.int_client
+                             << " DURATION:" << e.lease_duration.count() << "s"
+                             << " " << e.description << "\n";
                     }
                 } else {
                     cerr << "::: Error: " << r.error() << "\n";

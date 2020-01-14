@@ -94,16 +94,16 @@ igd::get_external_address(net::yield_context yield) noexcept
 
 result<std::vector<igd::map_entry>, igd::error::get_list_of_port_mappings>
 igd::get_list_of_port_mappings( protocol proto
-                              , uint16_t start
-                              , uint16_t end
+                              , uint16_t min_port
+                              , uint16_t max_port
                               , uint16_t max_count
                               , net::yield_context yield) noexcept
 {
     std::stringstream body;
     body <<
         "<u:GetListOfPortMappings xmlns:u=\"" << _urn << "\">"
-        "<NewStartPort>" << start << "</NewStartPort>"
-        "<NewEndPort>" << end << "</NewEndPort>"
+        "<NewStartPort>" << min_port << "</NewStartPort>"
+        "<NewEndPort>" << max_port << "</NewEndPort>"
         "<NewProtocol>" << proto << "</NewProtocol>"
         "<NewNumberOfPorts>" << max_count << "</NewNumberOfPorts>"
         "<u:GetListOfPortMappings>";
@@ -193,7 +193,6 @@ igd::soap_request( string_view command
     rq.body() = std::move(body);
     rq.prepare_payload();
 
-    //std::cerr << "----------------------------------------\n";
     //std::cerr << rq;
 
     sys::error_code ec;
@@ -216,7 +215,6 @@ igd::soap_request( string_view command
     if (ec) return error::http_response{};
 
     //std::cerr << rs;
-    //std::cerr << "----------------------------------------\n";
 
     if (rs.result() != beast::http::status::ok) {
         return error::http_status{rs.result()};

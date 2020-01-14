@@ -59,12 +59,7 @@ igd::add_port_mapping( protocol proto
             "</u:AddPortMapping>";
 
     auto rs = soap_request("AddPortMapping", body.str(), yield);
-    if (!rs) return error::soap_request{};
-
-    auto result = rs.value().result();
-    if (result != beast::http::status::ok) {
-        return error::bad_response_status{result};
-    }
+    if (!rs) return rs.error();
 
     return success();
 }
@@ -77,12 +72,7 @@ igd::get_external_address(net::yield_context yield) noexcept
         "<u:GetExternalIPAddress xmlns:u\"urn:schemas-upnp-org:service:WANIPConnection:1\"/>";
 
     auto rs = soap_request("GetExternalIPAddress", body, yield);
-    if (!rs) return error::soap_request{};
-
-    auto result = rs.value().result();
-    if (result != beast::http::status::ok) {
-        return error::bad_response_status{result};
-    }
+    if (!rs) return rs.error();
 
     auto opt_xml = xml::parse(rs.value().body());
     if (!opt_xml) return error::invalid_xml_body{};
@@ -92,7 +82,7 @@ igd::get_external_address(net::yield_context yield) noexcept
                        "NewExternalIPAddress";
 
     auto opt_ip_s = xml_rs.get_optional<std::string>(path);
-    if (!opt_ip_s) return error::bad_result{};
+    if (!opt_ip_s) return error::invalid_response{};
     auto& ip_s = *opt_ip_s;
 
     sys::error_code ec;
@@ -103,18 +93,18 @@ igd::get_external_address(net::yield_context yield) noexcept
 }
 
 inline
-result<beast::http::response<beast::http::string_body>>
+result< beast::http::response<beast::http::string_body>
+      , igd::error::soap_request>
 igd::soap_request( string_view command
                  , string_view message
                  , net::yield_context yield) noexcept
 {
-    using namespace std::chrono;
     namespace http = beast::http;
 
     auto host_port = _url.host_and_port();
     auto opt_remote_ep = str::consume_endpoint<net::ip::tcp>(host_port);
     if (!opt_remote_ep)
-        return net::error::invalid_argument;
+        return error::igd_host_parse_failed{};
 
     std::string body =
         "<?xml version=\"1.0\" ?>"
@@ -146,22 +136,23 @@ igd::soap_request( string_view command
     auto cancelled = _cancel.connect([&] { stream.close(); });
 
     stream.async_connect(*opt_remote_ep, yield[ec]);
-    if (cancelled) return net::error::operation_aborted;
-    if (ec) return ec;
+    if (ec) return error::tcp_connect{};
 
     http::async_write(stream, rq, yield[ec]);
-    if (cancelled) return net::error::operation_aborted;
-    if (ec) return ec;
+    if (ec) return error::http_request{};
 
     beast::flat_buffer b;
     http::response<http::string_body> rs;
 
     http::async_read(stream, b, rs, yield[ec]);
-    if (cancelled) return net::error::operation_aborted;
-    if (ec) return ec;
+    if (ec) return error::http_response{};
 
     //std::cerr << rs;
     //std::cerr << "----------------------------------------\n";
+
+    if (rs.result() != beast::http::status::ok) {
+        return error::http_status{rs.result()};
+    }
 
     return std::move(rs);
 }

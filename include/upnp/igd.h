@@ -16,7 +16,6 @@ class igd final {
 private:
     using os_t = std::ostream;
 
-
 public:
     enum protocol { tcp, udp };
 
@@ -26,20 +25,27 @@ public:
 
 public:
     struct error {
-        struct aborted {};
         struct igd_host_parse_failed {};
-        struct soap_request {};
         struct no_endpoint_to_igd {};
-        struct bad_response_status {
-            beast::http::status status;
-        };
         struct invalid_xml_body {};
-        struct bad_result {};
+        struct invalid_response {};
         struct bad_address {};
 
-        friend os_t& operator<<(os_t& os, const aborted&) {
-            return os << "operation aborted";
-        }
+        struct tcp_connect{};
+        struct http_request{};
+        struct http_response{};
+        struct http_status{
+            beast::http::status status;
+        };
+
+        using soap_request = variant<
+            igd_host_parse_failed,
+            tcp_connect,
+            http_request,
+            http_response,
+            http_status
+        >;
+
         friend os_t& operator<<(os_t& os, const igd_host_parse_failed&) {
             return os << "failed to parse IGD host";
         }
@@ -49,13 +55,13 @@ public:
         friend os_t& operator<<(os_t& os, const no_endpoint_to_igd&) {
             return os << "no suitable endpoint to IGD";
         }
-        friend os_t& operator<<(os_t& os, const bad_response_status& e) {
+        friend os_t& operator<<(os_t& os, const http_status& e) {
             return os << "IGD resonded with non OK status " << e.status;
         }
         friend os_t& operator<<(os_t& os, const invalid_xml_body&) {
             return os << "failed to parse xml body";
         }
-        friend os_t& operator<<(os_t& os, const bad_result&) {
+        friend os_t& operator<<(os_t& os, const invalid_response&) {
             return os << "bad result";
         }
         friend os_t& operator<<(os_t& os, const bad_address&) {
@@ -63,18 +69,15 @@ public:
         }
 
         using add_port_mapping = variant<
-            aborted,
             igd_host_parse_failed,
-            soap_request,
             no_endpoint_to_igd,
-            bad_response_status
+            soap_request
         >;
 
         using get_external_address = variant<
             soap_request,
-            bad_response_status,
             invalid_xml_body,
-            bad_result,
+            invalid_response,
             bad_address
         >;
     };
@@ -96,9 +99,7 @@ public:
      * https://github.com/syncthing/syncthing/blob/119d76d0/lib/upnp/igd_service.go#L75-L77
      *
      */
-    result< void
-          , error::add_port_mapping
-          >
+    result<void, error::add_port_mapping>
     add_port_mapping( protocol
                     , uint16_t external_port
                     , uint16_t internal_port
@@ -106,9 +107,7 @@ public:
                     , std::chrono::seconds duration
                     , net::yield_context yield) noexcept;
 
-    result< net::ip::address
-          , error::get_external_address
-          >
+    result<net::ip::address , error::get_external_address>
     get_external_address(net::yield_context yield) noexcept;
 
     void stop();
@@ -127,7 +126,9 @@ private:
     result<device>
     query_root_device(net::executor, const url_t&, net::yield_context) noexcept;
 
-    result<beast::http::response<beast::http::string_body>>
+    using soap_response = beast::http::response<beast::http::string_body>;
+
+    result<soap_response, error::soap_request>
     soap_request( string_view command
                 , string_view message
                 , net::yield_context) noexcept;

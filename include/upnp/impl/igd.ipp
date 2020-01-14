@@ -68,8 +68,7 @@ inline
 result<net::ip::address, igd::error::get_external_address>
 igd::get_external_address(net::yield_context yield) noexcept
 {
-    std::string body =
-        "<u:GetExternalIPAddress xmlns:u\"urn:schemas-upnp-org:service:WANIPConnection:1\"/>";
+    std::string body = "<u:GetExternalIPAddress xmlns:u=\"" + _urn + "\"/>";
 
     auto rs = soap_request("GetExternalIPAddress", body, yield);
     if (!rs) return rs.error();

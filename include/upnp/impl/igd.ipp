@@ -55,7 +55,6 @@ igd::add_port_mapping( protocol proto
             "<NewInternalClient>"         << local_ip          << "</NewInternalClient>"
             "<NewPortMappingDescription>" << description       << "</NewPortMappingDescription>"
             "<NewLeaseDuration>"          << duration.count()  << "</NewLeaseDuration>"
-            "<NewLeaseDuration>"          << 0  << "</NewLeaseDuration>"
             "</u:AddPortMapping>";
 
     auto rs = soap_request("AddPortMapping", body.str(), yield);

@@ -92,6 +92,7 @@ igd::get_external_address(net::yield_context yield) noexcept
     return std::move(addr);
 }
 
+inline
 result<std::vector<igd::map_entry>, igd::error::get_list_of_port_mappings>
 igd::get_list_of_port_mappings( protocol proto
                               , uint16_t min_port

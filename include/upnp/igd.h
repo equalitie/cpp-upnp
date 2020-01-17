@@ -61,7 +61,7 @@ public:
             return os << "failed to parse xml body";
         }
         friend os_t& operator<<(os_t& os, const invalid_response&) {
-            return os << "bad result";
+            return os << "invalid response";
         }
         friend os_t& operator<<(os_t& os, const bad_address&) {
             return os << "bad address";

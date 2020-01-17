@@ -3,6 +3,7 @@
 #include <upnp/core/optional.h>
 #include <upnp/detail/str/consume_number.h>
 #include <upnp/detail/str/parse_address.h>
+#include <upnp/detail/str/consume_until.h>
 
 #if defined(BOOST_PROPERTY_TREE_RAPIDXML_STATIC_POOL_SIZE) \
     && BOOST_PROPERTY_TREE_RAPIDXML_STATIC_POOL_SIZE > 512
@@ -51,6 +52,64 @@ optional<net::ip::address> get_address(tree t, const char* tag) {
     auto s = t.get_optional<std::string>(tag);
     if (!s) return none;
     return str::parse_address(*s);
+}
+
+// This does the same as ptree::get_optional, but allows us to ignore
+// the XML namespace prefix (e.g. the 's' in <s:Envelope/>) by using
+// '*' in the query instead of the namespace name. e.g.:
+//
+// optional<string> os = get<string>(tree, "*:Envelope.*:Body");
+template<class T>
+inline
+optional<T> get(const tree& tr, string_view path)
+{
+    const tree* t = &tr;
+
+    static auto name_split = [] (string_view s)
+        -> std::pair<string_view, string_view>
+    {
+        auto o = str::consume_until(s, ":");
+        if (!o) return std::make_pair("", s);
+        return std::make_pair(*o, s);
+    };
+
+    while (t) {
+        if (path.empty()) {
+            return t->get_value_optional<T>();
+        }
+        auto op = str::consume_until(path, ".");
+        string_view p;
+        if (op) {
+            p = *op;
+        } else {
+            p = path;
+            path = "";
+        }
+        auto ns = name_split(p);
+
+        auto t_ = t;
+        t = nullptr;
+
+        if (ns.first == "*") {
+            for (auto& e : *t_) {
+                auto name = e.first;
+                auto ns_ = name_split(name);
+                if (ns.second == ns_.second) {
+                    t = &e.second;
+                    break;
+                }
+            }
+        } else {
+            for (auto& e : *t_) {
+                if (e.first == p) {
+                    t = &e.second;
+                    break;
+                }
+            }
+        }
+    }
+
+    return boost::none;
 }
 
 }} // upnp::xml namespace

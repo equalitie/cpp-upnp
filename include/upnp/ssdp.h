@@ -12,6 +12,8 @@ namespace upnp { namespace ssdp {
 class query {
 public:
     struct response {
+        std::string service_type;
+        std::string usn; // unique servie name
         std::string uuid;
         url_t location;
 
@@ -19,7 +21,11 @@ public:
 
         friend std::ostream& operator<<(std::ostream& os, const response& r)
         {
-            return os << "(uuid:" << r.uuid << " location:" << r.location << ")";
+            return os << "(uuid:" << r.uuid
+                      << " location:" << r.location
+                      << " service_type:" << r.service_type
+                      << " usn:" << r.usn
+                      << ")";
         }
     };
 

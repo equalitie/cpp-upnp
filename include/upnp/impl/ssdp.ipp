@@ -165,20 +165,30 @@ result<query::response> query::response::parse(string_view lines)
         str::trim_space_suffix(val);
 
         if (boost::iequals(key, "USN")) {
+            ret.usn = val.to_string();
+            // USN: Unique Service Name
+            // https://tools.ietf.org/html/draft-cai-ssdp-v1-03#section-2.2.2
             while (auto opt_token = str::consume_until(val, ":")) {
                 if (boost::iequals(*opt_token, "uuid")) {
-                    auto opt_uuid = str::consume_until(val, ":");
-                    if (!opt_uuid) {
-                        return boost::system::errc::invalid_argument;
+                    auto opt_uuid = str::consume_until(val, "::");
+                    if (opt_uuid) {
+                        ret.uuid = opt_uuid->to_string();
+                    } else {
+                        ret.uuid = val.to_string();
                     }
-                    ret.uuid = opt_uuid->to_string();
                 }
             }
         } 
         if (boost::iequals(key, "LOCATION")) {
             auto location = url_t::parse(val.to_string());
-            if (!location) return sys::errc::invalid_argument;
+            if (!location) {
+                return sys::errc::invalid_argument;
+            }
             ret.location = std::move(*location);
+        }
+        if (boost::iequals(key, "ST")) {
+            // Service Type
+            ret.service_type = val.to_string();
         }
     }
 

@@ -53,6 +53,8 @@ result<void> query::state_t::start(net::yield_context yield)
 
     std::stringstream ss;
 
+    std::chrono::seconds timeout(3);
+
     const char* search_target
         //= "urn:schemas-upnp-org:device:InternetGatewayDevice:1";
         = "urn:schemas-upnp-org:device:InternetGatewayDevice:2";
@@ -63,7 +65,7 @@ result<void> query::state_t::start(net::yield_context yield)
        << "HOST: " << _multicast_ep << "\r\n"
        << "ST: " << search_target << "\r\n"
        << "MAN: \"ssdp:discover\"\r\n"
-       << "MX: 60\r\n"
+       << "MX: " << (timeout.count() - 1) << "\r\n"
        << "USER-AGENT: asio-upnp/1.0\r\n";
 
     auto sss = ss.str();
@@ -75,7 +77,7 @@ result<void> query::state_t::start(net::yield_context yield)
     if (ec) return ec;
 
     net::spawn(_exec, [&, self = shared_from_this()] (auto y) {
-        _timer.expires_after(std::chrono::seconds(3));
+        _timer.expires_after(timeout);
         _timer.async_wait([&, self] (error_code) {
             if (_rx_ec) return;
             _rx_ec = net::error::timed_out;

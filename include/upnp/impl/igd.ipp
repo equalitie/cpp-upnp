@@ -256,13 +256,16 @@ result<std::vector<igd>> igd::discover(net::executor exec, net::yield_context yi
 
     while (true) {
         auto qr = query.get_response(yield);
-        if (!qr) return qr.error();
+        if (!qr) {
+            if (qr.error() == net::error::timed_out && !igds.empty()) {
+                break;
+            }
+            return qr.error();
+        }
         auto& rsp = qr.value();
 
         auto res_root_dev = query_root_device(exec, rsp.location, yield);
-        if (!res_root_dev) {
-            return sys::errc::io_error;
-        }
+        if (!res_root_dev) return sys::errc::io_error;
         auto& root_dev = res_root_dev.value();
 
         string v;

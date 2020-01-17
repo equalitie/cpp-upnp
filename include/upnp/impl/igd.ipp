@@ -141,7 +141,7 @@ igd::get_generic_port_mapping_entry( uint16_t index
         std::chrono::seconds(*odur),
         proto,
         *ocli,
-        *oena
+        bool(*oena)
     };
 }
 
@@ -209,7 +209,7 @@ igd::get_list_of_port_mappings( protocol proto
                           , std::chrono::seconds(*olea)
                           , proto
                           , std::move(*ocli)
-                          , *oena});
+                          , bool(*oena)});
     }
 
     return std::move(entries);

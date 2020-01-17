@@ -57,8 +57,6 @@ public:
     const string_view fragment() const { return _fragment; }
 
     const string_view host_and_port() const {
-        string_view ret;
-
         if (_port.empty()) return _host;
         return string_view(_host.data(), _port.end() - _host.begin());
     }

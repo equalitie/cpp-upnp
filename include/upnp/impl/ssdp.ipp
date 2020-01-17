@@ -43,6 +43,7 @@ inline
 result<void> query::state_t::start(net::yield_context yield)
 {
     using udp = net::ip::udp;
+    using namespace std::chrono;
 
     _socket.set_option(udp::socket::reuse_address(true));
     _socket.set_option(net::ip::multicast::join_group(_multicast_ep.address()));
@@ -53,7 +54,7 @@ result<void> query::state_t::start(net::yield_context yield)
 
     std::stringstream ss;
 
-    std::chrono::seconds timeout(3);
+    seconds timeout(2);
 
     std::array<const char*, 2> search_targets
         = { "urn:schemas-upnp-org:device:InternetGatewayDevice:1"
@@ -66,7 +67,7 @@ result<void> query::state_t::start(net::yield_context yield)
            << "HOST: " << _multicast_ep << "\r\n"
            << "ST: " << target << "\r\n"
            << "MAN: \"ssdp:discover\"\r\n"
-           << "MX: " << (timeout.count() - 1) << "\r\n"
+           << "MX: " << timeout.count() << "\r\n"
            << "USER-AGENT: asio-upnp/1.0\r\n";
 
         auto sss = ss.str();
@@ -80,7 +81,7 @@ result<void> query::state_t::start(net::yield_context yield)
 
 
     net::spawn(_exec, [&, self = shared_from_this()] (auto y) {
-        _timer.expires_after(timeout);
+        _timer.expires_after(timeout + milliseconds(200));
         _timer.async_wait([&, self] (error_code) {
             if (_rx_ec) return;
             _rx_ec = net::error::timed_out;

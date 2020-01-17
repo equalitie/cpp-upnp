@@ -155,7 +155,8 @@ igd::get_list_of_port_mappings( protocol proto
                           , *oint
                           , std::chrono::seconds(*olea)
                           , proto
-                          , std::move(*ocli)});
+                          , std::move(*ocli)
+                          , *oena});
     }
 
     return std::move(entries);
@@ -233,8 +234,6 @@ igd::soap_request( string_view command
 
     http::async_read(stream, b, rs, yield[ec]);
     if (ec) return E{error::http_response{}};
-
-    //std::cerr << rs;
 
     if (rs.result() != beast::http::status::ok) {
         return E{error::http_status{rs.result()}};

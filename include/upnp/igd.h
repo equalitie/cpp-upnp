@@ -141,6 +141,7 @@ public:
         std::chrono::seconds lease_duration;
         protocol proto;
         net::ip::address int_client;
+        bool enabled;
     };
 
     result<std::vector<map_entry>, error::get_list_of_port_mappings>

@@ -252,6 +252,7 @@ result<std::vector<igd>> igd::discover(net::executor exec, net::yield_context yi
     if (!q) return q.error();
     auto& query = q.value();
 
+    std::set<std::string> already_seen;
     std::vector<igd> igds;
 
     while (true) {
@@ -285,6 +286,9 @@ result<std::vector<igd>> igd::discover(net::executor exec, net::yield_context yi
         string con_ppp        = "urn:schemas-upnp-org:service:WANPPPConnection:"   + v;
 
         for (const auto& device : root_dev.devices) {
+            // No duplicates
+            if (!already_seen.insert(device.udn).second) continue;
+
             if (device.type != device_urn) continue;
 
             for (const auto& connection : device.devices) {

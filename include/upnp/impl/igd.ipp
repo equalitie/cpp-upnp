@@ -78,10 +78,10 @@ igd::get_external_address(net::yield_context yield) noexcept
     if (!opt_xml) return error::invalid_xml_body{};
     auto& xml_rs = *opt_xml;
 
-    const char* path = "s:Envelope.s:Body.u:GetExternalIPAddressResponse."
+    const char* path = "*:Envelope.*:Body.u:GetExternalIPAddressResponse."
                        "NewExternalIPAddress";
 
-    auto opt_ip_s = xml_rs.get_optional<std::string>(path);
+    auto opt_ip_s = xml::get<std::string>(xml_rs, path);
     if (!opt_ip_s) return error::invalid_response{};
     auto& ip_s = *opt_ip_s;
 

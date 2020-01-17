@@ -33,6 +33,7 @@ struct service {
 
 struct device {
     std::string type;
+    std::string udn;
     std::string friendly_name;
     std::vector<device> devices;
     std::vector<service> services;
@@ -56,6 +57,10 @@ struct device {
         auto opt_type = tree.get_optional<std::string>("deviceType");
         if (!opt_type) return none;
         ret.type = std::move(*opt_type);
+
+        auto opt_udn = tree.get_optional<std::string>("UDN");
+        if (!opt_udn) return none;
+        ret.udn = std::move(*opt_udn);
 
         auto opt_name = tree.get_optional<std::string>("friendlyName");
         if (!opt_name) return none;
@@ -108,8 +113,9 @@ std::ostream& operator<<(std::ostream& os, const pretty_printer<service>& pd) {
 inline
 std::ostream& operator<<(std::ostream& os, const pretty_printer<device>& pd) {
     std::string pad(pd.level * 2, ' ');
-    os << pad << pd.v.type << "\n";
-    os << pad << pd.v.friendly_name << "\n";
+    os << pad << "type: " << pd.v.type << "\n";
+    os << pad << "friendly_name: " << pd.v.friendly_name << "\n";
+    os << pad << "udn: " << pd.v.udn << "\n";
 
     if (!pd.v.devices.empty()) {
         os << pad << "devices:\n";

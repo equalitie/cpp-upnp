@@ -60,7 +60,13 @@ result<void> query::state_t::start(net::yield_context yield)
 
     std::array<const char*, 2> search_targets
         = { "urn:schemas-upnp-org:device:InternetGatewayDevice:1"
-          , "urn:schemas-upnp-org:device:InternetGatewayDevice:2" };
+          , "urn:schemas-upnp-org:device:InternetGatewayDevice:2"
+          //, "urn:schemas-upnp-org:service:WANIPConnection:1"
+          //, "urn:schemas-upnp-org:service:WANIPConnection:2"
+          //, "urn:schemas-upnp-org:service:WANPPPConnection:1"
+          //, "urn:schemas-upnp-org:service:WANPPPConnection:2"
+          //, "upnp:rootdevice"
+          };
 
     for (auto target : search_targets) {
         // Section 1.3.2 in
@@ -70,7 +76,8 @@ result<void> query::state_t::start(net::yield_context yield)
            << "ST: " << target << "\r\n"
            << "MAN: \"ssdp:discover\"\r\n"
            << "MX: " << timeout.count() << "\r\n"
-           << "USER-AGENT: asio-upnp/1.0\r\n";
+           << "USER-AGENT: asio-upnp/1.0\r\n"
+           << "\r\n";
 
         auto sss = ss.str();
 
@@ -104,7 +111,8 @@ result<void> query::state_t::start(net::yield_context yield)
             }
             if (_rx_ec) break;
 
-            auto r = response::parse(string_view(rx.data(), size));
+            auto sv = string_view(rx.data(), size);
+            auto r = response::parse(sv);
             if (!r) continue;
             // Don't add duplicates
             if (!_already_seen_usns.insert(r.value().usn).second) continue;

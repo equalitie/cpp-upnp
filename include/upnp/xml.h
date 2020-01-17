@@ -54,18 +54,17 @@ optional<net::ip::address> get_address(tree t, const char* tag) {
     return str::parse_address(*s);
 }
 
-// This does the same as ptree::get_optional, but allows us to ignore
+// This does the same as ptree::get_child_optional, but allows us to ignore
 // the XML namespace prefix (e.g. the 's' in <s:Envelope/>) by using
 // '*' in the query instead of the namespace name. e.g.:
 //
 // optional<string> os = get<string>(tree, "*:Envelope.*:Body");
-template<class T>
 inline
-optional<T> get(const tree& tr, string_view path)
+const tree* get_child(const tree& tr, string_view path)
 {
     const tree* t = &tr;
 
-    static auto name_split = [] (string_view s)
+    static const auto name_split = [] (string_view s)
         -> std::pair<string_view, string_view>
     {
         auto o = str::consume_until(s, ":");
@@ -74,17 +73,11 @@ optional<T> get(const tree& tr, string_view path)
     };
 
     while (t) {
-        if (path.empty()) {
-            return t->get_value_optional<T>();
-        }
+        if (path.empty()) return t;
+
         auto op = str::consume_until(path, ".");
         string_view p;
-        if (op) {
-            p = *op;
-        } else {
-            p = path;
-            path = "";
-        }
+        if (op) { p = *op; } else { p = path; path = ""; }
         auto ns = name_split(p);
 
         auto t_ = t;
@@ -109,7 +102,26 @@ optional<T> get(const tree& tr, string_view path)
         }
     }
 
-    return boost::none;
+    return t;
+}
+
+template<class T>
+inline
+optional<T> get(const tree& tr, string_view path)
+{
+    auto t = get_child(tr, path);
+    if (!t) return boost::none;
+    return t->get_value_optional<T>();
 }
 
 }} // upnp::xml namespace
+
+namespace boost { namespace property_tree {
+
+inline
+std::ostream& operator<<(std::ostream& os, const ptree& xml) {
+    write_xml(os, xml);
+    return os;
+}
+
+}} // boost::property_tree namespace

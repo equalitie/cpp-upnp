@@ -9,6 +9,7 @@
 #include <boost/asio/steady_timer.hpp>
 #include <chrono>
 #include <queue>
+#include <set>
 
 namespace upnp { namespace ssdp {
 
@@ -19,6 +20,7 @@ struct query::state_t : std::enable_shared_from_this<state_t> {
     ConditionVariable _cv;
     const net::ip::udp::endpoint _multicast_ep;
     std::queue<query::response> _responses;
+    std::set<std::string> _already_seen_usns;
 
     optional<error_code> _stop_ec;
     optional<error_code> _rx_ec;
@@ -104,6 +106,8 @@ result<void> query::state_t::start(net::yield_context yield)
 
             auto r = response::parse(string_view(rx.data(), size));
             if (!r) continue;
+            // Don't add duplicates
+            if (!_already_seen_usns.insert(r.value().usn).second) continue;
             _responses.push(std::move(r.value()));
             _cv.notify();
         }

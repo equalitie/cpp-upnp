@@ -93,6 +93,59 @@ igd::get_external_address(net::yield_context yield) noexcept
 }
 
 inline
+result<igd::map_entry, igd::error::get_generic_port_mapping_entry>
+igd::get_generic_port_mapping_entry( uint16_t index
+                                   , net::yield_context yield) noexcept
+{
+    std::stringstream body;
+    body <<
+        "<u:GetGenericPortMappingEntry xmlns:u=\"" << _urn << "\">"
+        "<NewPortMappingIndex>" << index << "</NewPortMappingIndex>"
+        "</u:GetGenericPortMappingEntry>";
+
+    auto rs = soap_request("GetGenericPortMappingEntry", body.str(), yield);
+    if (!rs) return rs.error();
+
+    auto b = std::move(rs.value().body());
+    auto opt_xml = xml::parse(b);
+    if (!opt_xml) return error::invalid_xml_body{};
+    auto& xml_rs = *opt_xml;
+
+    const char* path = "*:Envelope.*:Body.u:GetGenericPortMappingEntryResponse";
+    auto o = xml::get_child(xml_rs, path);
+
+    auto odes = o->get_optional<std::string>("NewPortMappingDescription");
+    auto oext = xml::get_num<uint16_t>(*o, "NewExternalPort");
+    auto oint = xml::get_num<uint16_t>(*o, "NewInternalPort");
+    auto odur = xml::get_num<uint32_t>(*o, "NewLeaseDuration");
+    auto opro = o->get_optional<std::string>("NewProtocol");
+    auto ocli = xml::get_address      (*o, "NewInternalClient");
+    auto oena = xml::get_num<uint16_t>(*o, "NewEnabled");
+
+    if (!oext || !oint || !ocli || !oena || !odur || !odes || !opro)
+        return error::invalid_response{};
+
+    protocol proto;
+    if (boost::iequals(*opro, "UDP")) {
+        proto = udp;
+    } else if (boost::iequals(*opro, "TCP")) {
+        proto = tcp;
+    } else {
+        return error::invalid_response{};
+    }
+
+    return map_entry {
+        std::move(*odes),
+        *oext,
+        *oint,
+        std::chrono::seconds(*odur),
+        proto,
+        *ocli,
+        *oena
+    };
+}
+
+inline
 result<std::vector<igd::map_entry>, igd::error::get_list_of_port_mappings>
 igd::get_list_of_port_mappings( protocol proto
                               , uint16_t min_port

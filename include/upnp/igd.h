@@ -98,6 +98,12 @@ public:
             invalid_response
         >;
 
+        using get_generic_port_mapping_entry = variant<
+            soap_request,
+            invalid_xml_body,
+            invalid_response
+        >;
+
         using delete_port_mapping = variant<
             soap_request
         >;
@@ -144,12 +150,17 @@ public:
         bool enabled;
     };
 
+    // IGD:2 only
     result<std::vector<map_entry>, error::get_list_of_port_mappings>
     get_list_of_port_mappings( protocol
                              , uint16_t min_port
                              , uint16_t max_port
                              , uint16_t max_count
                              , net::yield_context yield) noexcept;
+
+    result<map_entry, error::get_generic_port_mapping_entry>
+    get_generic_port_mapping_entry( uint16_t index
+                                  , net::yield_context yield) noexcept;
 
     result<void, error::delete_port_mapping>
     delete_port_mapping( protocol

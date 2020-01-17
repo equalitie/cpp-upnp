@@ -55,26 +55,29 @@ result<void> query::state_t::start(net::yield_context yield)
 
     std::chrono::seconds timeout(3);
 
-    const char* search_target
-        //= "urn:schemas-upnp-org:device:InternetGatewayDevice:1";
-        = "urn:schemas-upnp-org:device:InternetGatewayDevice:2";
+    std::array<const char*, 2> search_targets
+        = { "urn:schemas-upnp-org:device:InternetGatewayDevice:1"
+          , "urn:schemas-upnp-org:device:InternetGatewayDevice:2" };
 
-    // Section 1.3.2 in
-    // http://upnp.org/specs/arch/UPnP-arch-DeviceArchitecture-v1.1.pdf
-    ss << "M-SEARCH * HTTP/1.1\r\n"
-       << "HOST: " << _multicast_ep << "\r\n"
-       << "ST: " << search_target << "\r\n"
-       << "MAN: \"ssdp:discover\"\r\n"
-       << "MX: " << (timeout.count() - 1) << "\r\n"
-       << "USER-AGENT: asio-upnp/1.0\r\n";
+    for (auto target : search_targets) {
+        // Section 1.3.2 in
+        // http://upnp.org/specs/arch/UPnP-arch-DeviceArchitecture-v1.1.pdf
+        ss << "M-SEARCH * HTTP/1.1\r\n"
+           << "HOST: " << _multicast_ep << "\r\n"
+           << "ST: " << target << "\r\n"
+           << "MAN: \"ssdp:discover\"\r\n"
+           << "MX: " << (timeout.count() - 1) << "\r\n"
+           << "USER-AGENT: asio-upnp/1.0\r\n";
 
-    auto sss = ss.str();
+        auto sss = ss.str();
 
-    _socket.async_send_to( net::buffer(sss.data(), sss.size())
-                         , _multicast_ep
-                         , yield[ec]);
+        _socket.async_send_to( net::buffer(sss.data(), sss.size())
+                             , _multicast_ep
+                             , yield[ec]);
 
-    if (ec) return ec;
+        if (ec) return ec;
+    }
+
 
     net::spawn(_exec, [&, self = shared_from_this()] (auto y) {
         _timer.expires_after(timeout);

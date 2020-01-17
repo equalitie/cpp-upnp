@@ -110,15 +110,15 @@ int main()
 
         cerr << "Listening on UDP " << socket.local_endpoint() << "\n";
 
-         while (true) {
-             upnp::error_code ec;
-             net::ip::udp::endpoint ep;
-             std::array<char, 256> d;
-             size_t size = socket.async_receive_from(net::buffer(d), ep, yield[ec]);
-             if (ec) { cerr << "Bye\n"; break; }
-             boost::string_view sv(d.data(), size);
-             std::cerr << "received " << sv << "\n";
-         }
+        while (true) {
+            upnp::error_code ec;
+            net::ip::udp::endpoint ep;
+            std::array<char, 256> d;
+            size_t size = socket.async_receive_from(net::buffer(d), ep, yield[ec]);
+            if (ec) { cerr << "Bye\n"; break; }
+            boost::string_view sv(d.data(), size);
+            std::cerr << "received " << sv << "\n";
+        }
     });
 
     ctx.run();

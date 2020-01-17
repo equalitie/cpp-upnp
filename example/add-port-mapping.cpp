@@ -86,9 +86,9 @@ int main()
         auto r_igds = upnp::igd::discover(ctx.get_executor(), yield);
 
         if (r_igds) {
-            cerr << pad << "Success" << "\n";
+            cerr << pad << "Success. Found " << r_igds.value().size() << " IGDs\n";
         } else {
-            cerr << pad << "Error: " << r_igds.error() << "\n";
+            cerr << pad << "Error: " << r_igds.error().message() << "\n";
             return;
         }
 

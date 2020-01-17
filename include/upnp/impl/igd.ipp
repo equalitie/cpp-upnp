@@ -250,54 +250,58 @@ result<std::vector<igd>> igd::discover(net::executor exec, net::yield_context yi
 
     auto q = ssdp::query::start(exec, yield);
     if (!q) return q.error();
-
-    auto qrr = q.value().get_response(yield);
-    if (!qrr) return qrr.error();
-
-    auto& qr = qrr.value();
-
-    auto res_root_dev = query_root_device(exec, qr.location, yield);
-    if (!res_root_dev) return sys::errc::io_error;
-    auto& root_dev = res_root_dev.value();
-
-    string v;
-
-    if (root_dev.type == "urn:schemas-upnp-org:device:InternetGatewayDevice:1") {
-        v = "1";
-    } else
-    if (root_dev.type == "urn:schemas-upnp-org:device:InternetGatewayDevice:2") {
-        v = "2";
-    } else {
-        return sys::errc::io_error;
-    }
-
-    string device_urn     = "urn:schemas-upnp-org:device:WANDevice:"           + v;
-    string connection_urn = "urn:schemas-upnp-org:device:WANConnectionDevice:" + v;
-    string con_ip         = "urn:schemas-upnp-org:service:WANIPConnection:"    + v;
-    string con_ppp        = "urn:schemas-upnp-org:service:WANPPPConnection:"   + v;
+    auto& query = q.value();
 
     std::vector<igd> igds;
 
-    for (const auto& device : root_dev.devices) {
-        if (device.type != device_urn) continue;
+    while (true) {
+        auto qr = query.get_response(yield);
+        if (!qr) return qr.error();
+        auto& rsp = qr.value();
 
-        for (const auto& connection : device.devices) {
-            if (connection.type != connection_urn) continue;
+        auto res_root_dev = query_root_device(exec, rsp.location, yield);
+        if (!res_root_dev) {
+            return sys::errc::io_error;
+        }
+        auto& root_dev = res_root_dev.value();
 
-            for (const auto& service : connection.services) {
-                if (service.type != con_ip && service.type != con_ppp)continue;
+        string v;
 
-                url_t url = qr.location;
-                url.replace_path(service.control_url.path());
+        if (root_dev.type == "urn:schemas-upnp-org:device:InternetGatewayDevice:1") {
+            v = "1";
+        } else
+        if (root_dev.type == "urn:schemas-upnp-org:device:InternetGatewayDevice:2") {
+            v = "2";
+        } else {
+            continue;
+        }
 
-                igds.push_back({
-                    qr.uuid,
-                    device,
-                    service.id,
-                    url,
-                    service.type,
-                    exec
-                });
+        string device_urn     = "urn:schemas-upnp-org:device:WANDevice:"           + v;
+        string connection_urn = "urn:schemas-upnp-org:device:WANConnectionDevice:" + v;
+        string con_ip         = "urn:schemas-upnp-org:service:WANIPConnection:"    + v;
+        string con_ppp        = "urn:schemas-upnp-org:service:WANPPPConnection:"   + v;
+
+        for (const auto& device : root_dev.devices) {
+            if (device.type != device_urn) continue;
+
+            for (const auto& connection : device.devices) {
+                if (connection.type != connection_urn) continue;
+
+                for (const auto& service : connection.services) {
+                    if (service.type != con_ip && service.type != con_ppp)continue;
+
+                    url_t url = rsp.location;
+                    url.replace_path(service.control_url.path());
+
+                    igds.push_back({
+                        rsp.uuid,
+                        device,
+                        service.id,
+                        url,
+                        service.type,
+                        exec
+                    });
+                }
             }
         }
     }

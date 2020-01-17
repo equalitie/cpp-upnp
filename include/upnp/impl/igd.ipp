@@ -187,11 +187,12 @@ igd::soap_request( string_view command
                  , net::yield_context yield) noexcept
 {
     namespace http = beast::http;
+    using E = error::soap_request;
 
     auto host_port = _url.host_and_port();
     auto opt_remote_ep = str::consume_endpoint<net::ip::tcp>(host_port);
     if (!opt_remote_ep)
-        return error::igd_host_parse_failed{};
+        return E{error::igd_host_parse_failed{}};
 
     std::string body =
         "<?xml version=\"1.0\" ?>"
@@ -222,21 +223,21 @@ igd::soap_request( string_view command
     auto cancelled = _cancel.connect([&] { stream.close(); });
 
     stream.async_connect(*opt_remote_ep, yield[ec]);
-    if (ec) return error::tcp_connect{};
+    if (ec) return E{error::tcp_connect{}};
 
     http::async_write(stream, rq, yield[ec]);
-    if (ec) return error::http_request{};
+    if (ec) return E{error::http_request{}};
 
     beast::flat_buffer b;
     soap_response rs;
 
     http::async_read(stream, b, rs, yield[ec]);
-    if (ec) return error::http_response{};
+    if (ec) return E{error::http_response{}};
 
     //std::cerr << rs;
 
     if (rs.result() != beast::http::status::ok) {
-        return error::http_status{rs.result()};
+        return E{error::http_status{rs.result()}};
     }
 
     return std::move(rs);

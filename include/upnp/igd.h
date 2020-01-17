@@ -38,25 +38,24 @@ public:
             beast::http::status status;
         };
 
-        using soap_request = variant<
-            igd_host_parse_failed,
-            tcp_connect,
-            http_request,
-            http_response,
-            http_status
-        >;
+        struct soap_request {
+            variant<
+                igd_host_parse_failed,
+                tcp_connect,
+                http_request,
+                http_response,
+                http_status
+            > inner;
+        };
 
         friend os_t& operator<<(os_t& os, const igd_host_parse_failed&) {
             return os << "failed to parse IGD host";
         }
-        friend os_t& operator<<(os_t& os, const soap_request&) {
-            return os << "failed to do soap request";
+        friend os_t& operator<<(os_t& os, const soap_request& r) {
+            return os << "failed to do soap request: " << r.inner;
         }
         friend os_t& operator<<(os_t& os, const no_endpoint_to_igd&) {
             return os << "no suitable endpoint to IGD";
-        }
-        friend os_t& operator<<(os_t& os, const http_status& e) {
-            return os << "IGD resonded with non OK status " << e.status;
         }
         friend os_t& operator<<(os_t& os, const invalid_xml_body&) {
             return os << "failed to parse xml body";
@@ -66,6 +65,18 @@ public:
         }
         friend os_t& operator<<(os_t& os, const bad_address&) {
             return os << "bad address";
+        }
+        friend os_t& operator<<(os_t& os, const tcp_connect&) {
+            return os << "tcp connect";
+        }
+        friend os_t& operator<<(os_t& os, const http_request&) {
+            return os << "http request";
+        }
+        friend os_t& operator<<(os_t& os, const http_response&) {
+            return os << "http response";
+        }
+        friend os_t& operator<<(os_t& os, const http_status& e) {
+            return os << "IGD resonded with non OK status " << e.status;
         }
 
         using add_port_mapping = variant<

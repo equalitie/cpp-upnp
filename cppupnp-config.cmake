@@ -9,6 +9,7 @@ add_library(cpp_upnp
     STATIC
         ${CPPUPnP_DIR}/src/igd.cpp
         ${CPPUPnP_DIR}/src/ssdp.cpp
+        ${CPPUPnP_DIR}/src/url.cpp
 )
 
 target_include_directories(cpp_upnp

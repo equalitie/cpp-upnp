@@ -2,34 +2,25 @@
 
 # CPPUPnP
 
-Boost.Asio based C++ library to communicate with Internet Gateway Devices (IGDs).
+Boost.Asio based C++ library to implement parts of the UPnP standard.
 
 ## Status
 
-This library is currently under development and the API will very likely change
-in a backward incompatible way.
+This library is under development and the API will very likely change in a
+backward incompatible way.
 
-## Build examples and tests
+The current functionality includes listing, creating and deleting of TCP and
+UDP port mappings on IGD (v1 and v2) devices.
 
-### Examples
+## Build instructions
 
-    mkdir build.examples
-    cd build.examples
-    cmake <PATH_TO_CPP_UPNP>/example
-    cmake --build .
-
-### Tests
-
-    mkdir build.tests
-    cd build.tests
-    cmake <PATH_TO_CPP_UPNP>/tests
-    cmake --build .
-
-For more info please have a look into [.circleci/config.yml](.circleci/config.yml)
-
-## Include in your project
+### Include in your project
 
 Please have a look into [example/CMakeLists.txt](example/CMakeLists.txt)
+
+### Build examples and tests
+
+Please have a look into [.circleci/config.yml](.circleci/config.yml)
 
 ## Useful links/documents
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <upnp/core/net.h>
+#include <upnp/third_party/net.h>
 #include <upnp/cancel.h>
-#include <upnp/core/result.h>
-#include <upnp/core/string_view.h>
-#include <upnp/core/variant.h>
-#include <upnp/core/beast.h>
+#include <upnp/third_party/result.h>
+#include <upnp/third_party/string_view.h>
+#include <upnp/third_party/variant.h>
+#include <upnp/third_party/beast.h>
 #include <upnp/device.h>
 
 #include <boost/range/begin.hpp> // needed by spawn

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <upnp/core/optional.h>
-#include <upnp/core/string_view.h>
-#include <upnp/core/net.h>
+#include <upnp/third_party/optional.h>
+#include <upnp/third_party/string_view.h>
+#include <upnp/third_party/net.h>
 #include <boost/asio/ip/address.hpp>
 
 #if defined(BOOST_PROPERTY_TREE_RAPIDXML_STATIC_POOL_SIZE) \

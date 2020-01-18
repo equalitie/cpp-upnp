@@ -2,7 +2,7 @@
 
 #include "parse_address.h"
 #include "consume_number.h"
-#include <upnp/core/net.h>
+#include <upnp/third_party/net.h>
 
 namespace upnp { namespace str {
 

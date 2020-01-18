@@ -1,6 +1,6 @@
 #pragma once
 
-#include <upnp/core/string_view.h>
+#include <upnp/third_party/string_view.h>
 
 namespace upnp { namespace str {
 

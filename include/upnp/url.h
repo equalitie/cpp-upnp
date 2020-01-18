@@ -1,7 +1,7 @@
 #pragma once
 
-#include <upnp/core/optional.h>
-#include <upnp/core/string_view.h>
+#include <upnp/third_party/optional.h>
+#include <upnp/third_party/string_view.h>
 
 namespace upnp {
 

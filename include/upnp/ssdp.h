@@ -1,7 +1,7 @@
 #pragma once
 
-#include <upnp/core/result.h>
-#include <upnp/core/net.h>
+#include <upnp/third_party/result.h>
+#include <upnp/third_party/net.h>
 #include <upnp/url.h>
 
 #include <boost/range/begin.hpp> // needed by spawn

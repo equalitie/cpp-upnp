@@ -1,6 +1,4 @@
 #pragma once
 
+#include <upnp/ssdp.h>
 #include <upnp/igd.h>
-
-namespace upnp {
-} // namespace upnp

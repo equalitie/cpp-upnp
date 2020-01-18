@@ -7,7 +7,7 @@
 
 #if defined(BOOST_PROPERTY_TREE_RAPIDXML_STATIC_POOL_SIZE) \
     && BOOST_PROPERTY_TREE_RAPIDXML_STATIC_POOL_SIZE > 512
-#  error "The xml parser in Boost.PropertyTree reserves too static pool "
+#  error "The xml parser in Boost.PropertyTree reserves too big static pool "
          "size causing problems when used with coroutines in Boost.Asio. "
          "For more information have a look at this SO post "
          "https://stackoverflow.com/a/45473980/273348"

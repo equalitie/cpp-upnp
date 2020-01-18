@@ -36,7 +36,7 @@ jobs:
             ./test-url --log_level=test_suite
 
       - run:
-          name: Build example example
+          name: Build example
           command: |
             mkdir build.example
             cd build.example

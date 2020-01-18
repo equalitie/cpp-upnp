@@ -1,3 +1,7 @@
+
+
+[![CircleCI](https://circleci.com/gh/equalitie/cpp-upnp/tree/master.svg?style=shield)]
+
 # CPPUPnP
 
 Boost.Asio based C++ library to communicate with Internet Gateway Devices (IGDs).

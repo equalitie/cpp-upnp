@@ -1,0 +1,44 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: debian:bullseye
+
+    environment:
+      CMAKE_BUILD_PARALLEL_LEVEL: 3
+      # cmake fails without this for some reason
+      LANG: C.UTF-8
+      BASH_ENV: ~/.bashrc
+
+    steps:
+      - run:
+          name: Install dependencies
+          command: |
+            apt-get update
+            apt-get install -y \
+                libboost1.71-dev \
+                libboost-coroutine1.71-dev \
+                build-essential \
+                cmake \
+                git \
+                ninja-build \
+
+      - checkout
+
+      - run:
+          name: Build & run tests
+          command: |
+            mkdir build.tests
+            cd build.tests
+            cmake ../test
+            cmake --build .
+            ./test-url --log_level=test_suite
+
+      - run:
+          name: Build example example
+          command: |
+            mkdir build.example
+            cd build.example
+            cmake ../example
+            cmake --build .

@@ -1,8 +1,10 @@
 #pragma once
 
-#include <boost/asio/spawn.hpp>
 #include <boost/asio/error.hpp>
 #include <boost/asio/post.hpp>
+#include <boost/range/begin.hpp> // needed by spawn
+#include <boost/range/end.hpp> // needed by spawn
+#include <boost/asio/spawn.hpp>
 #include <boost/intrusive/list.hpp>
 #include <upnp/detail/cancel.h>
 #include <upnp/detail/namespaces.h>

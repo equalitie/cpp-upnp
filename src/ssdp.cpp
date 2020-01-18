@@ -1,5 +1,4 @@
-#pragma once
-
+#include <upnp/ssdp.h>
 #include <upnp/detail/condition_variable.h>
 #include <upnp/detail/str/consume_until.h>
 #include <upnp/detail/str/consume_endpoint.h>
@@ -7,6 +6,8 @@
 #include <upnp/detail/str/trim.h>
 #include <boost/asio/ip/multicast.hpp>
 #include <boost/asio/steady_timer.hpp>
+#include <boost/asio/ip/udp.hpp>
+#include <boost/asio/ip/tcp.hpp>
 #include <chrono>
 #include <queue>
 #include <set>
@@ -41,7 +42,6 @@ struct query::state_t : std::enable_shared_from_this<state_t> {
     void stop(error_code);
 };
 
-inline
 result<void> query::state_t::start(net::yield_context yield)
 {
     using udp = net::ip::udp;
@@ -125,7 +125,6 @@ result<void> query::state_t::start(net::yield_context yield)
     return success();
 }
 
-inline
 result<query::response> query::state_t::get_response(net::yield_context yield)
 {
     auto self = shared_from_this();
@@ -148,7 +147,6 @@ result<query::response> query::state_t::get_response(net::yield_context yield)
 }
 
 /* static */
-inline
 result<query::response> query::response::parse(string_view lines)
 {
     size_t line_n = 0;
@@ -211,19 +209,17 @@ result<query::response> query::response::parse(string_view lines)
     return std::move(ret);
 }
 
-inline void query::state_t::stop(error_code ec) {
+void query::state_t::stop(error_code ec) {
     _stop_ec = ec;
     _socket.close(ec);
     _timer.cancel();
 }
 
-inline
 query::query(std::shared_ptr<state_t> state)
     : _state(std::move(state))
 {}
 
 /* static */
-inline
 result<query> query::start(net::executor exec, net::yield_context yield)
 {
     auto st = std::make_shared<state_t>(exec);
@@ -232,18 +228,17 @@ result<query> query::start(net::executor exec, net::yield_context yield)
     return query{std::move(st)};
 }
 
-inline
 result<query::response> query::get_response(net::yield_context yield)
 {
     return _state->get_response(yield);
 }
 
-inline void query::stop() {
+void query::stop() {
     _state->stop(net::error::operation_aborted);
     _state = nullptr;
 }
 
-inline query::~query() {
+query::~query() {
     if (_state) stop();
 }
 

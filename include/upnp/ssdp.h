@@ -3,8 +3,9 @@
 #include <upnp/core/result.h>
 #include <upnp/url.h>
 #include <upnp/detail/namespaces.h>
-#include <boost/asio/ip/udp.hpp>
-#include <boost/asio/ip/tcp.hpp>
+
+#include <boost/range/begin.hpp> // needed by spawn
+#include <boost/range/end.hpp> // needed by spawn
 #include <boost/asio/spawn.hpp>
 
 namespace upnp { namespace ssdp {
@@ -54,5 +55,3 @@ private:
 };
 
 }} // namespace upnp::ssdp
-
-#include <upnp/impl/ssdp.ipp>

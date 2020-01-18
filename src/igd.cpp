@@ -1,11 +1,14 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/optional/optional_io.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string.hpp>
 #include <upnp/detail/local_address_to.h>
+#include <upnp/detail/str/consume_endpoint.h>
 #include <upnp/ssdp.h>
 #include <upnp/device.h>
 #include <upnp/config.h>
 #include <upnp/igd.h>
+#include <set>
 
 namespace upnp {
 

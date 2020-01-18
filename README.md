@@ -25,11 +25,11 @@ in a backward incompatible way.
     cmake <PATH_TO_CPP_UPNP>/tests
     cmake --build .
 
-For more info please have a look into .circleci/config.yml
+For more info please have a look into [.circleci/config.yml](.circleci/config.yml)
 
 ## Include in your project
 
-Please have a look into example/CMakeLists.txt
+Please have a look into [example/CMakeLists.txt](example/CMakeLists.txt)
 
 ## Useful links/documents
 

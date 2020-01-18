@@ -6,7 +6,7 @@
 #include <boost/range/end.hpp> // needed by spawn
 #include <boost/asio/spawn.hpp>
 #include <boost/intrusive/list.hpp>
-#include <upnp/cancel.h>
+#include <upnp/detail/cancel.h>
 #include <upnp/third_party/net.h>
 
 namespace upnp {

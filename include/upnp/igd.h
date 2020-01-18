@@ -1,7 +1,7 @@
 #pragma once
 
 #include <upnp/third_party/net.h>
-#include <upnp/cancel.h>
+#include <upnp/detail/cancel.h>
 #include <upnp/third_party/result.h>
 #include <upnp/third_party/string_view.h>
 #include <upnp/third_party/variant.h>

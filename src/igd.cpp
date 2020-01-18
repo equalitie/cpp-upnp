@@ -2,6 +2,7 @@
 #include <boost/optional/optional_io.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/beast.hpp>
 #include "local_address_to.h"
 #include "str/consume_endpoint.h"
 #include <upnp/ssdp.h>

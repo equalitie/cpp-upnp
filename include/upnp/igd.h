@@ -5,7 +5,9 @@
 #include <upnp/third_party/result.h>
 #include <upnp/third_party/string_view.h>
 #include <upnp/third_party/variant.h>
-#include <upnp/third_party/beast.h>
+#include <boost/beast/http/message.hpp>
+#include <boost/beast/http/string_body.hpp>
+#include <boost/asio/ip/address.hpp>
 #include <upnp/device.h>
 
 #include <boost/range/begin.hpp> // needed by spawn
@@ -13,6 +15,8 @@
 #include <boost/asio/spawn.hpp>
 
 namespace upnp {
+
+namespace beast = boost::beast;
 
 // Internet Gateway Device
 class igd final {

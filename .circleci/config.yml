@@ -21,7 +21,6 @@ jobs:
                 libboost-coroutine1.71-dev \
                 build-essential \
                 cmake \
-                git \
                 ninja-build \
 
       - checkout

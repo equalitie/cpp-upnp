@@ -14,8 +14,8 @@ class query {
 public:
     struct response {
         std::string service_type;
-        std::string usn; // unique servie name
-        std::string uuid;
+        std::string usn; // usn stands for unique servie name
+        std::string uuid; // uuid is part of usn
         url_t location;
 
         static result<response> parse(string_view);

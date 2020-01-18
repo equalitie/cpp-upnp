@@ -7,7 +7,7 @@
 #include <boost/asio/spawn.hpp>
 #include <boost/intrusive/list.hpp>
 #include <upnp/cancel.h>
-#include <upnp/namespaces.h>
+#include <upnp/core/net.h>
 
 namespace upnp {
 

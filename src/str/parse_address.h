@@ -4,7 +4,7 @@
 #include <upnp/core/error_code.h>
 #include <upnp/core/string_view.h>
 #include <upnp/core/optional.h>
-#include <upnp/namespaces.h>
+#include <upnp/core/net.h>
 
 namespace upnp { namespace str {
 

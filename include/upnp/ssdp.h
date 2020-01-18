@@ -1,8 +1,8 @@
 #pragma once
 
 #include <upnp/core/result.h>
+#include <upnp/core/net.h>
 #include <upnp/url.h>
-#include <upnp/namespaces.h>
 
 #include <boost/range/begin.hpp> // needed by spawn
 #include <boost/range/end.hpp> // needed by spawn

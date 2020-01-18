@@ -14,6 +14,8 @@
 
 namespace upnp {
 
+namespace sys = boost::system;
+
 igd::igd( std::string   uuid
         , device        upnp_device
         , std::string   service_id
@@ -86,7 +88,7 @@ igd::get_external_address(net::yield_context yield) noexcept
     if (!opt_ip_s) return error::invalid_response{};
     auto& ip_s = *opt_ip_s;
 
-    sys::error_code ec;
+    error_code ec;
     auto addr = net::ip::make_address(ip_s, ec);
     if (ec) return error::bad_address{};
 
@@ -266,7 +268,7 @@ igd::soap_request( string_view command
 
     //std::cerr << rq;
 
-    sys::error_code ec;
+    error_code ec;
 
     beast::tcp_stream stream(_exec);
     stream.expires_after(std::chrono::seconds(5));

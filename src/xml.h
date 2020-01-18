@@ -2,7 +2,7 @@
 
 #include <upnp/core/optional.h>
 #include <upnp/core/string_view.h>
-#include <upnp/namespaces.h>
+#include <upnp/core/net.h>
 #include <boost/asio/ip/address.hpp>
 
 #if defined(BOOST_PROPERTY_TREE_RAPIDXML_STATIC_POOL_SIZE) \

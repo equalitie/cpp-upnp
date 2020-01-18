@@ -15,6 +15,8 @@
 
 namespace upnp { namespace ssdp {
 
+namespace sys = boost::system;
+
 struct query::state_t : std::enable_shared_from_this<state_t> {
     net::executor _exec;
     net::ip::udp::socket _socket;
@@ -51,7 +53,7 @@ result<void> query::state_t::start(net::yield_context yield)
     _socket.set_option(udp::socket::reuse_address(true));
     _socket.set_option(net::ip::multicast::join_group(_multicast_ep.address()));
 
-    sys::error_code ec;
+    error_code ec;
     _socket.bind(udp::endpoint(net::ip::address_v4::any(), 0), ec);
     if (ec) return ec;
 
@@ -103,7 +105,7 @@ result<void> query::state_t::start(net::yield_context yield)
             std::array<char, 32*1024> rx;
             net::ip::udp::endpoint ep;
             net::mutable_buffer b(rx.data(), rx.size());
-            sys::error_code ec;
+            error_code ec;
             size_t size = _socket.async_receive_from(b, ep, y[ec]);
 
             if (!_rx_ec) {
@@ -138,7 +140,7 @@ result<query::response> query::state_t::get_response(net::yield_context yield)
 
     while (_responses.empty()) {
         if (_rx_ec) return *_rx_ec;
-        sys::error_code ec;
+        error_code ec;
         _cv.wait(yield[ec]);
     }
 
@@ -243,4 +245,4 @@ query::~query() {
     if (_state) stop();
 }
 
-}} // namespaces
+}} // namespaces upnp::ssdp

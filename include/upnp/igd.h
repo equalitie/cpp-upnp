@@ -1,6 +1,6 @@
 #pragma once
 
-#include <upnp/namespaces.h>
+#include <upnp/core/net.h>
 #include <upnp/cancel.h>
 #include <upnp/core/result.h>
 #include <upnp/core/string_view.h>

@@ -1,9 +1,4 @@
 #include <upnp/ssdp.h>
-#include <upnp/detail/condition_variable.h>
-#include <upnp/detail/str/consume_until.h>
-#include <upnp/detail/str/consume_endpoint.h>
-#include <upnp/detail/str/istarts_with.h>
-#include <upnp/detail/str/trim.h>
 #include <boost/asio/ip/multicast.hpp>
 #include <boost/asio/steady_timer.hpp>
 #include <boost/asio/ip/udp.hpp>
@@ -11,6 +6,12 @@
 #include <chrono>
 #include <queue>
 #include <set>
+
+#include "condition_variable.h"
+#include "str/consume_until.h"
+#include "str/consume_endpoint.h"
+#include "str/istarts_with.h"
+#include "str/trim.h"
 
 namespace upnp { namespace ssdp {
 

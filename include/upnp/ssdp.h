@@ -2,7 +2,7 @@
 
 #include <upnp/core/result.h>
 #include <upnp/url.h>
-#include <upnp/detail/namespaces.h>
+#include <upnp/namespaces.h>
 
 #include <boost/range/begin.hpp> // needed by spawn
 #include <boost/range/end.hpp> // needed by spawn

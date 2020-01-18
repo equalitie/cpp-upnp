@@ -1,6 +1,6 @@
 #include <upnp/url.h>
-#include <upnp/detail/str/consume_until.h>
-#include <upnp/detail/str/consume_number.h>
+#include "str/consume_until.h"
+#include "str/consume_number.h"
 
 using namespace upnp;
 

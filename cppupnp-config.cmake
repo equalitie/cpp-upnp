@@ -7,10 +7,11 @@ find_package(Boost 1.71 REQUIRED COMPONENTS coroutine system)
 
 add_library(cpp_upnp
     STATIC
+        ${CPPUPnP_DIR}/src/xml.cpp
         ${CPPUPnP_DIR}/src/igd.cpp
         ${CPPUPnP_DIR}/src/ssdp.cpp
         ${CPPUPnP_DIR}/src/url.cpp
-        ${CPPUPnP_DIR}/src/device.cpp
+        ${CPPUPnP_DIR}/src/parse_device.cpp
 )
 
 target_include_directories(cpp_upnp

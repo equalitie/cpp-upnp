@@ -1,7 +1,7 @@
 #pragma once
 
-#include <upnp/xml.h>
 #include <upnp/url.h>
+#include <vector>
 
 namespace upnp {
 
@@ -9,8 +9,6 @@ struct service {
     std::string id;
     std::string type;
     url_t control_url;
-
-    static optional<service> parse(const xml::tree& tree);
 };
 
 struct device {
@@ -19,12 +17,6 @@ struct device {
     std::string friendly_name;
     std::vector<device> devices;
     std::vector<service> services;
-
-    static optional<device> parse_root(const std::string& xml_str);
-
-    static optional<device> parse_root(const xml::tree& tree);
-
-    static optional<device> parse(const xml::tree& tree);
 };
 
 

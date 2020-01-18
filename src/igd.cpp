@@ -2,12 +2,14 @@
 #include <boost/optional/optional_io.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string.hpp>
-#include <upnp/detail/local_address_to.h>
-#include <upnp/detail/str/consume_endpoint.h>
+#include "local_address_to.h"
+#include "str/consume_endpoint.h"
 #include <upnp/ssdp.h>
 #include <upnp/device.h>
 #include <upnp/config.h>
 #include <upnp/igd.h>
+#include "xml.h"
+#include "parse_device.h"
 #include <set>
 
 namespace upnp {
@@ -405,7 +407,7 @@ igd::query_root_device( net::executor exec
         return sys::errc::protocol_error;
     }
 
-    auto opt_root_dev = device::parse_root(rs.body());
+    auto opt_root_dev = device_parse_root(rs.body());
     if (!opt_root_dev) return sys::errc::io_error;
 
     return std::move(*opt_root_dev);

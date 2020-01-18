@@ -1,8 +1,8 @@
 #pragma once
 
-#include <upnp/detail/str/parse_address.h>
-#include <upnp/detail/str/consume_number.h>
-#include <upnp/detail/namespaces.h>
+#include "parse_address.h"
+#include "consume_number.h"
+#include <upnp/namespaces.h>
 
 namespace upnp { namespace str {
 

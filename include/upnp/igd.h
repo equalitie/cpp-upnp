@@ -1,12 +1,15 @@
 #pragma once
 
-#include <upnp/detail/namespaces.h>
-#include <upnp/detail/cancel.h>
+#include <upnp/namespaces.h>
+#include <upnp/cancel.h>
 #include <upnp/core/result.h>
 #include <upnp/core/string_view.h>
 #include <upnp/core/variant.h>
 #include <upnp/core/beast.h>
 #include <upnp/device.h>
+
+#include <boost/range/begin.hpp> // needed by spawn
+#include <boost/range/end.hpp> // needed by spawn
 #include <boost/asio/spawn.hpp>
 
 namespace upnp {

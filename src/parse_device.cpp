@@ -1,9 +1,8 @@
-#include <upnp/device.h>
+#include "parse_device.h"
 
-using namespace upnp;
+namespace upnp {
 
-/* static */
-optional<service> service::parse(const xml::tree& tree) {
+optional<service> service_parse(const xml::tree& tree) {
     service ret;
 
     auto opt_id = tree.get_optional<std::string>("serviceId");
@@ -23,23 +22,20 @@ optional<service> service::parse(const xml::tree& tree) {
     return ret;
 }
 
-/* static */
-optional<device> device::parse_root(const std::string& xml_str) {
+optional<device> device_parse_root(const std::string& xml_str) {
     auto tree = xml::parse(xml_str);
     if (!tree) return none;
-    return parse_root(*tree);
+    return device_parse_root(*tree);
 }
 
-/* static */
-optional<device> device::parse_root(const xml::tree& tree) {
+optional<device> device_parse_root(const xml::tree& tree) {
     device ret;
     auto opt_dev = tree.get_child_optional("root.device");
     if (!opt_dev) return none;
-    return parse(*opt_dev);
+    return device_parse(*opt_dev);
 }
 
-/* static */
-optional<device> device::parse(const xml::tree& tree) {
+optional<device> device_parse(const xml::tree& tree) {
     device ret;
 
     auto opt_type = tree.get_optional<std::string>("deviceType");
@@ -58,7 +54,7 @@ optional<device> device::parse(const xml::tree& tree) {
 
     if (opt_services) {
         for (auto& v : *opt_services) {
-            auto opt = service::parse(v.second);
+            auto opt = service_parse(v.second);
             if (!opt) continue;
             ret.services.push_back(std::move(*opt));
         }
@@ -68,7 +64,7 @@ optional<device> device::parse(const xml::tree& tree) {
 
     if (opt_devices) {
         for (auto& v : *opt_devices) {
-            auto opt = device::parse(v.second);
+            auto opt = device_parse(v.second);
             if (!opt) continue;
             ret.devices.push_back(std::move(*opt));
         }
@@ -76,3 +72,5 @@ optional<device> device::parse(const xml::tree& tree) {
 
     return ret;
 }
+
+} // namespace upnp

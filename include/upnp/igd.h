@@ -201,5 +201,3 @@ private:
 };
 
 } // namespace upnp
-
-#include <upnp/impl/igd.ipp>

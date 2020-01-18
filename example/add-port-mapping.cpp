@@ -1,5 +1,6 @@
 #include <upnp.h>
 #include <iostream>
+#include <boost/asio/ip/udp.hpp>
 
 using namespace std;
 namespace net = upnp::net;

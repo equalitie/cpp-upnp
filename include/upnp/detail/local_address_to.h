@@ -3,6 +3,7 @@
 #include <boost/asio/ip/address.hpp>
 #include <boost/optional.hpp>
 #include <upnp/core/error_code.h>
+#include <upnp/detail/namespaces.h>
 
 namespace upnp {
 

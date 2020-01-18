@@ -5,26 +5,30 @@ project(CPPUPnP VERSION 1.0.0 LANGUAGES CXX)
 find_package(Threads REQUIRED)
 find_package(Boost 1.71 REQUIRED COMPONENTS coroutine system)
 
-add_library(cpp_upnp INTERFACE)
+add_library(cpp_upnp
+    STATIC
+        ${CPPUPnP_DIR}/src/igd.cpp
+)
 
 target_include_directories(cpp_upnp
-    INTERFACE
+    PUBLIC
         ${CPPUPnP_DIR}/include
         ${Boost_INCLUDE_DIR}
 )
 
 target_link_libraries(cpp_upnp
-    INTERFACE
+    PUBLIC
         ${Boost_LIBRARIES}
+    PRIVATE
         Threads::Threads
 )
 
 target_compile_features(cpp_upnp
-    INTERFACE
+    PUBLIC
         cxx_std_14
 )
 
 target_compile_options(cpp_upnp
-    INTERFACE
+    PRIVATE
         $<$<CXX_COMPILER_ID:GNU>:-Wall>
 )

@@ -1,4 +1,3 @@
-
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/optional/optional_io.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -6,11 +5,10 @@
 #include <upnp/ssdp.h>
 #include <upnp/device.h>
 #include <upnp/config.h>
-#include <iostream>
+#include <upnp/igd.h>
 
 namespace upnp {
 
-inline
 igd::igd( std::string   uuid
         , device        upnp_device
         , std::string   service_id
@@ -25,7 +23,6 @@ igd::igd( std::string   uuid
     , _exec(exec)
 {}
 
-inline
 result<void, igd::error::add_port_mapping>
 igd::add_port_mapping( protocol proto
                      , uint16_t external_port
@@ -65,7 +62,6 @@ igd::add_port_mapping( protocol proto
     return success();
 }
 
-inline
 result<net::ip::address, igd::error::get_external_address>
 igd::get_external_address(net::yield_context yield) noexcept
 {
@@ -92,7 +88,6 @@ igd::get_external_address(net::yield_context yield) noexcept
     return std::move(addr);
 }
 
-inline
 result<igd::map_entry, igd::error::get_generic_port_mapping_entry>
 igd::get_generic_port_mapping_entry( uint16_t index
                                    , net::yield_context yield) noexcept
@@ -145,7 +140,6 @@ igd::get_generic_port_mapping_entry( uint16_t index
     };
 }
 
-inline
 result<std::vector<igd::map_entry>, igd::error::get_list_of_port_mappings>
 igd::get_list_of_port_mappings( protocol proto
                               , uint16_t min_port
@@ -215,7 +209,6 @@ igd::get_list_of_port_mappings( protocol proto
     return std::move(entries);
 }
 
-inline
 result<void, igd::error::delete_port_mapping>
 igd::delete_port_mapping( protocol proto
                         , uint16_t ext_port
@@ -234,7 +227,6 @@ igd::delete_port_mapping( protocol proto
     return success();
 }
 
-inline
 result<igd::soap_response, igd::error::soap_request>
 igd::soap_request( string_view command
                  , string_view message
@@ -296,7 +288,6 @@ igd::soap_request( string_view command
 }
 
 /* static */
-inline
 result<std::vector<igd>> igd::discover(net::executor exec, net::yield_context yield)
 {
     using namespace std;
@@ -370,7 +361,6 @@ result<std::vector<igd>> igd::discover(net::executor exec, net::yield_context yi
 }
 
 /* static */
-inline
 result<device>
 igd::query_root_device( net::executor exec
                       , const url_t& url
@@ -418,7 +408,6 @@ igd::query_root_device( net::executor exec
     return std::move(*opt_root_dev);
 }
 
-inline
 void igd::stop() {
     _cancel();
 }

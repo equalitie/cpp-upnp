@@ -118,11 +118,20 @@ public:
 
     const std::string& friendly_name() const { return _upnp_device.friendly_name; }
 
+    /*
+     * Discover IGD devices.
+     */
     static
     result<std::vector<igd>> discover(net::executor, net::yield_context);
 
     /*
+     * Section 2.4.16 from (IGD:1)
+     * http://upnp.org/specs/gw/UPnP-gw-WANIPConnection-v1-Service.pdf
      *
+     * Section 2.5.16 from (IGD:2)
+     * http://upnp.org/specs/gw/UPnP-gw-WANIPConnection-v2-Service.pdf
+     *
+     * Note:
      * This text https://tools.ietf.org/html/rfc6886#section-9.5 states that
      * setting @duration to != 0 may be a bad idea, although there seem to be
      * projects that use non zero values as a default and fall back to zero
@@ -139,6 +148,13 @@ public:
                     , std::chrono::seconds duration
                     , net::yield_context yield) noexcept;
 
+    /*
+     * Section 2.4.18 from (IGD:1)
+     * http://upnp.org/specs/gw/UPnP-gw-WANIPConnection-v1-Service.pdf
+     *
+     * Section 2.5.20 from (IGD:2)
+     * http://upnp.org/specs/gw/UPnP-gw-WANIPConnection-v2-Service.pdf
+     */
     result<net::ip::address , error::get_external_address>
     get_external_address(net::yield_context yield) noexcept;
 
@@ -153,7 +169,10 @@ public:
         bool enabled;
     };
 
-    // IGD:2 only
+    /*
+     * Section 2.5.21 from (IGD:2 only)
+     * http://upnp.org/specs/gw/UPnP-gw-WANIPConnection-v2-Service.pdf
+     */
     result<std::vector<map_entry>, error::get_list_of_port_mappings>
     get_list_of_port_mappings( protocol
                              , uint16_t min_port
@@ -161,15 +180,32 @@ public:
                              , uint16_t max_count
                              , net::yield_context yield) noexcept;
 
+    /*
+     * Section 2.4.14 from (IGD:1)
+     * http://upnp.org/specs/gw/UPnP-gw-WANIPConnection-v1-Service.pdf
+     *
+     * Section 2.5.14 from (IGD:2)
+     * http://upnp.org/specs/gw/UPnP-gw-WANIPConnection-v2-Service.pdf
+     */
     result<map_entry, error::get_generic_port_mapping_entry>
     get_generic_port_mapping_entry( uint16_t index
                                   , net::yield_context yield) noexcept;
 
+    /*
+     * Section 2.4.17 from (IGD:1)
+     * http://upnp.org/specs/gw/UPnP-gw-WANIPConnection-v1-Service.pdf
+     *
+     * Section 2.5.18 from (IGD:2)
+     * http://upnp.org/specs/gw/UPnP-gw-WANIPConnection-v2-Service.pdf
+     */
     result<void, error::delete_port_mapping>
     delete_port_mapping( protocol
                        , uint16_t ext_port
                        , net::yield_context yield) noexcept;
 
+    /*
+     * Stop all currently running actions
+     */
     void stop();
 
     ~igd() { stop(); }

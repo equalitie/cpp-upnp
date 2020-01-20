@@ -17,12 +17,12 @@ add_library(cpp_upnp
 target_include_directories(cpp_upnp
     PUBLIC
         ${CPPUPnP_DIR}/include
-        ${Boost_INCLUDE_DIR}
 )
 
 target_link_libraries(cpp_upnp
     PUBLIC
-        ${Boost_LIBRARIES}
+        Boost::system
+        Boost::coroutine
     PRIVATE
         Threads::Threads
 )

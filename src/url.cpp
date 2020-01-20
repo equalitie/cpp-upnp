@@ -1,6 +1,7 @@
 #include <upnp/url.h>
 #include "str/consume_until.h"
 #include "str/consume_number.h"
+#include <ostream>
 
 using namespace upnp;
 

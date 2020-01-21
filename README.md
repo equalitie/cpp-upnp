@@ -16,7 +16,19 @@ UDP port mappings on IGD (v1 and v2) devices.
 
 ### Include in your project
 
-Please have a look into [example/CMakeLists.txt](example/CMakeLists.txt)
+If you have sources of CPPUPnP somewhere on your disk, simply set the
+`CPPUPnP_DIR` variable to point to that CPPUPnP's directory as is done in the
+[example/CMakeLists.txt](example/CMakeLists.txt)
+
+If you don't have CPPUPnP on your disk, have cmake download it prior to calling
+`find_package(CPPUPnP REQUIRED)` like so:
+
+    include(FetchContent)
+    fetchcontent_declare(CPPUPnP GIT_REPOSITORY <CPPUPnP-GIT-Repository>)
+    fetchcontent_makeavailable(CPPUPnP)
+    
+    set(CPPUPnP_DIR ${CMAKE_BINARY_DIR}/_deps/cppupnp-src)
+    find_package(CPPUPnP REQUIRED)
 
 ### Build examples and tests
 

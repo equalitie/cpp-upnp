@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 project(cpp-upnp-example)
 
 # This tells the find_package function where to look for CPPUPnP
-list(INSERT CMAKE_PREFIX_PATH 0 ${CMAKE_SOURCE_DIR}/..)
+set(CPPUPnP_DIR ${CMAKE_SOURCE_DIR}/..)
 find_package(CPPUPnP REQUIRED)
 
 add_executable            (add-port-mapping ./add-port-mapping.cpp)

@@ -24,10 +24,8 @@ If you don't have CPPUPnP on your disk, have cmake download it prior to calling
 `find_package(CPPUPnP REQUIRED)` like so:
 
     include(FetchContent)
-    fetchcontent_declare(CPPUPnP GIT_REPOSITORY <CPPUPnP-GIT-Repository>)
-    fetchcontent_makeavailable(CPPUPnP)
-    
-    set(CPPUPnP_DIR ${CMAKE_BINARY_DIR}/_deps/cppupnp-src)
+    fetchcontent_populate(CPPUPnP GIT_REPOSITORY <CPPUPnP-GIT-Repository>)
+    set(CPPUPnP_DIR ${CMAKE_BINARY_DIR}/cppupnp-src)
     find_package(CPPUPnP REQUIRED)
 
 ### Build examples and tests

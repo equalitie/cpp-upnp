@@ -103,6 +103,7 @@ int main()
 
     net::spawn(ctx, [&] (net::yield_context yield) {
         cerr << "Discovering IGDs\n";
+
         auto r_igds = upnp::igd::discover(ctx.get_executor(), yield);
 
         if (r_igds) {
@@ -124,12 +125,16 @@ int main()
             get_external_address(igd, yield);
 
             add_port_mapping(igd, 7777, socket.local_endpoint().port(), yield);
+
             list_port_mappings_igd1(igd, yield);
             list_port_mappings_igd2(igd, yield);
 
             //delete_port_mapping(igd, 7777, yield);
         }
 
+        // Uncomment the below code to start receiving UDP packets on the
+        // socket which we made available from outside on port 7777.
+        //
         //cerr << "Listening on UDP " << socket.local_endpoint() << "\n";
 
         //while (true) {

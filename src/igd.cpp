@@ -39,8 +39,6 @@ igd::add_port_mapping( protocol proto
                      , std::chrono::seconds duration
                      , net::yield_context yield) noexcept
 {
-    using namespace std::chrono;
-
     auto host_port = _url.host_and_port();
     auto opt_remote_ep = str::consume_endpoint<net::ip::tcp>(host_port);
     if (!opt_remote_ep)

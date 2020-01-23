@@ -160,8 +160,9 @@ result<query::response> query::response::parse(string_view lines)
         auto line = *opt_line;
 
         if (line_n++ == 0) {
+            // Parse first line (e.g. "HTTP/1.x 200 OK")
             if (!str::istarts_with(line, "http")) {
-                return std::move(ret);
+                return boost::system::errc::invalid_argument;
             }
             str::consume_until(line, " ");
             str::trim_space_prefix(line);

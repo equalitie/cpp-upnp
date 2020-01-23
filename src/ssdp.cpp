@@ -23,10 +23,10 @@ struct query::state_t : std::enable_shared_from_this<state_t> {
     net::steady_timer _timer;
     ConditionVariable _cv;
     const net::ip::udp::endpoint _multicast_ep;
-    std::queue<query::response> _responses;
+    std::queue<result<query::response, error::parse>> _responses;
     std::set<std::string> _already_seen_usns;
 
-    optional<error_code> _stop_ec;
+    bool _stopped = false;
     optional<error_code> _rx_ec;
 
     state_t(net::executor exec)
@@ -38,11 +38,12 @@ struct query::state_t : std::enable_shared_from_this<state_t> {
         , _multicast_ep(net::ip::address_v4({239, 255, 255, 250}), 1900)
     {}
 
-    result<query::response> get_response(net::yield_context yield);
+    result<query::response, query::error::get_response>
+    get_response(net::yield_context yield);
 
     result<void> start(net::yield_context);
 
-    void stop(error_code);
+    void stop();
 };
 
 result<void> query::state_t::start(net::yield_context yield)
@@ -109,17 +110,18 @@ result<void> query::state_t::start(net::yield_context yield)
             size_t size = _socket.async_receive_from(b, ep, y[ec]);
 
             if (!_rx_ec) {
-                if (_stop_ec) _rx_ec = _stop_ec;
+                if (_stopped) _rx_ec = net::error::operation_aborted;
                 else if (ec)  _rx_ec = ec;
             }
             if (_rx_ec) break;
 
             auto sv = string_view(rx.data(), size);
-            auto r = response::parse(sv);
-            if (!r) continue;
-            // Don't add duplicates
-            if (!_already_seen_usns.insert(r.value().usn).second) continue;
-            _responses.push(std::move(r.value()));
+            auto&& r = response::parse(sv);
+            if (r) {
+                // Don't add duplicates
+                if (!_already_seen_usns.insert(r.value().usn).second) continue;
+            }
+            _responses.push(r);
             _cv.notify();
         }
         _cv.notify();
@@ -128,30 +130,34 @@ result<void> query::state_t::start(net::yield_context yield)
     return success();
 }
 
-result<query::response> query::state_t::get_response(net::yield_context yield)
+result<query::response, query::error::get_response>
+query::state_t::get_response(net::yield_context yield)
 {
+    using E = error::get_response;
+
     auto self = shared_from_this();
 
-    using namespace net::error;
-
-    if (_stop_ec) {
-        return *_stop_ec;
+    if (_stopped) {
+        return E{net::error::operation_aborted};
     }
 
     while (_responses.empty()) {
-        if (_rx_ec) return *_rx_ec;
+        if (_rx_ec) return E{*_rx_ec};
         error_code ec;
         _cv.wait(yield[ec]);
     }
 
     auto r = std::move(_responses.front());
     _responses.pop();
-    return std::move(r);
+    return std::move(r.value());
 }
 
 /* static */
-result<query::response> query::response::parse(string_view lines)
+result<query::response, query::error::parse>
+query::response::parse(string_view lines)
 {
+    using E = query::error::parse;
+
     size_t line_n = 0;
 
     response ret;
@@ -162,13 +168,13 @@ result<query::response> query::response::parse(string_view lines)
         if (line_n++ == 0) {
             // Parse first line (e.g. "HTTP/1.x 200 OK")
             if (!str::istarts_with(line, "http")) {
-                return boost::system::errc::invalid_argument;
+                return E{error::http_status_line{lines.to_string()}};
             }
             str::consume_until(line, " ");
             str::trim_space_prefix(line);
             auto result = str::consume_until(line, " ");
             if (!result || *result != "200") {
-                return boost::system::errc::invalid_argument;
+                return E{error::http_result{lines.to_string()}};
             }
             continue;
         }
@@ -200,7 +206,7 @@ result<query::response> query::response::parse(string_view lines)
         if (boost::iequals(key, "LOCATION")) {
             auto location = url_t::parse(val.to_string());
             if (!location) {
-                return sys::errc::invalid_argument;
+                return E{error::location_url{lines.to_string()}};
             }
             ret.location = std::move(*location);
         }
@@ -213,9 +219,10 @@ result<query::response> query::response::parse(string_view lines)
     return std::move(ret);
 }
 
-void query::state_t::stop(error_code ec) {
-    _stop_ec = ec;
-    _socket.close(ec);
+void query::state_t::stop() {
+    _stopped = true;
+    error_code ignored_ec;
+    _socket.close(ignored_ec);
     _timer.cancel();
 }
 
@@ -232,13 +239,14 @@ result<query> query::start(net::executor exec, net::yield_context yield)
     return query{std::move(st)};
 }
 
-result<query::response> query::get_response(net::yield_context yield)
+result<query::response, query::error::get_response>
+query::get_response(net::yield_context yield)
 {
     return _state->get_response(yield);
 }
 
 void query::stop() {
-    _state->stop(net::error::operation_aborted);
+    _state->stop();
     _state = nullptr;
 }
 

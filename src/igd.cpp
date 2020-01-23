@@ -308,10 +308,17 @@ result<std::vector<igd>> igd::discover(net::executor exec, net::yield_context yi
     while (true) {
         auto qr = query.get_response(yield);
         if (!qr) {
-            if (qr.error() == net::error::timed_out && !igds.empty()) {
+            // For now, ignore responses which we failed to parse
+            if (qr.error().is_parse_error()) continue;
+
+            auto ecp = qr.error().as_error_code();
+            assert(ecp && "Should be either parse error or error_code");
+
+            if (*ecp == net::error::timed_out && !igds.empty()) {
                 break;
             }
-            return qr.error();
+
+            return *ecp;
         }
         auto& rsp = qr.value();
 

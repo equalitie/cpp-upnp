@@ -247,7 +247,7 @@ igd::soap_request( string_view command
         return E{error::igd_host_parse_failed{_url}};
 
     std::string body =
-        "<?xml version=\"1.0\" ?>"
+        "<?xml version=\"1.0\"?>"
         "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" "
                     "s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"
         "<s:Body>" + message.to_string() + "</s:Body>"
@@ -260,7 +260,7 @@ igd::soap_request( string_view command
     rq.set(http::field::connection, "Close");
     rq.set(http::field::cache_control, "no-cache");
     rq.set(http::field::pragma, "no-cache");
-    rq.set("SOAPAction", _urn + "#" + command.to_string());
+    rq.set("SOAPAction", "\"" + _urn + "#" + command.to_string() + "\"");
 
     rq.body() = std::move(body);
     rq.prepare_payload();

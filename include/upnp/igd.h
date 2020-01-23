@@ -32,7 +32,9 @@ public:
 
 public:
     struct error {
-        struct igd_host_parse_failed {};
+        struct igd_host_parse_failed {
+            url_t url;
+        };
         struct no_endpoint_to_igd {};
         struct invalid_xml_body {};
         struct invalid_response {};
@@ -55,8 +57,8 @@ public:
             > inner;
         };
 
-        friend os_t& operator<<(os_t& os, const igd_host_parse_failed&) {
-            return os << "failed to parse IGD host";
+        friend os_t& operator<<(os_t& os, const igd_host_parse_failed& e) {
+            return os << "failed to parse IGD host " << e.url;
         }
         friend os_t& operator<<(os_t& os, const soap_request& r) {
             return os << "failed to do soap request: " << r.inner;

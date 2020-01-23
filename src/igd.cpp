@@ -42,7 +42,7 @@ igd::add_port_mapping( protocol proto
     auto host_port = _url.host_and_port();
     auto opt_remote_ep = str::consume_endpoint<net::ip::tcp>(host_port);
     if (!opt_remote_ep)
-        return error::igd_host_parse_failed{};
+        return error::igd_host_parse_failed{_url};
 
     auto opt_local_ip = local_address_to(*opt_remote_ep);
     if (!opt_local_ip)
@@ -244,7 +244,7 @@ igd::soap_request( string_view command
     auto host_port = _url.host_and_port();
     auto opt_remote_ep = str::consume_endpoint<net::ip::tcp>(host_port);
     if (!opt_remote_ep)
-        return E{error::igd_host_parse_failed{}};
+        return E{error::igd_host_parse_failed{_url}};
 
     std::string body =
         "<?xml version=\"1.0\" ?>"

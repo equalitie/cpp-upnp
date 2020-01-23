@@ -253,7 +253,7 @@ igd::soap_request( string_view command
         "<s:Body>" + message.to_string() + "</s:Body>"
         "</s:Envelope>";
 
-    http::request<http::string_body> rq{http::verb::post, _url, 11};
+    http::request<http::string_body> rq{http::verb::post, _url.path(), 11};
     rq.set(http::field::host, _url.host_and_port());
     rq.set(http::field::user_agent, CPP_UPNP_HTTP_USER_AGENT);
     rq.set(http::field::content_type, "text/xml; charset=\"utf-8\"");

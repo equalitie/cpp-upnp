@@ -14,7 +14,7 @@ optional<tree> parse(const std::string& xml_str) {
         ios::stream<ios::array_source> stream(xml_str.c_str(), xml_str.size());
         pt::ptree tree;
         pt::read_xml(stream, tree);
-        return std::move(tree);
+        return tree;
     } catch (std::exception& e) {
         return none;
     }

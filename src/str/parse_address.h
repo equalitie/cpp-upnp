@@ -24,7 +24,7 @@ parse_address(string_view s)
 #endif
 
     if (ec) return none;
-    return std::move(addr);
+    return addr;
 }
 
 }} // namespaces

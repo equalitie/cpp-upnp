@@ -216,7 +216,7 @@ query::response::parse(string_view lines)
         }
     }
 
-    return std::move(ret);
+    return ret;
 }
 
 void query::state_t::stop() {

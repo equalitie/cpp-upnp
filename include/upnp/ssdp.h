@@ -67,7 +67,7 @@ public:
     query(query&&)            = default;
     query& operator=(query&&) = default;
 
-    static result<query> start(net::executor, net::yield_context);
+    static result<query> start(net::any_io_executor, net::yield_context);
 
     // May be called multiple times until error is of type error_code.
     // This let's callers of this function decide what to do when ssdp

@@ -17,8 +17,8 @@ jobs:
           command: |
             apt-get update
             apt-get install -y \
-                libboost1.71-dev \
-                libboost-coroutine1.71-dev \
+                libboost1.74-dev \
+                libboost-coroutine1.74-dev \
                 build-essential \
                 cmake \
                 ninja-build \

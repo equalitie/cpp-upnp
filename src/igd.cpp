@@ -91,7 +91,7 @@ igd::get_external_address(net::yield_context yield) noexcept
     auto addr = net::ip::make_address(ip_s, ec);
     if (ec) return error::bad_address{};
 
-    return addr;
+    return {std::move(addr)};
 }
 
 result<igd::map_entry, igd::error::get_generic_port_mapping_entry>
@@ -212,7 +212,7 @@ igd::get_list_of_port_mappings( protocol proto
                           , bool(*oena)});
     }
 
-    return entries;
+    return {std::move(entries)};
 }
 
 result<void, igd::error::delete_port_mapping>
@@ -290,7 +290,7 @@ igd::soap_request( string_view command
         return E{error::http_status{rs.result()}};
     }
 
-    return rs;
+    return {std::move(rs)};
 }
 
 /* static */
@@ -370,7 +370,7 @@ result<std::vector<igd>> igd::discover(net::any_io_executor exec, net::yield_con
         }
     }
 
-    return igds;
+    return {std::move(igds)};
 }
 
 /* static */
@@ -418,7 +418,7 @@ igd::query_root_device( net::any_io_executor exec
     auto opt_root_dev = device_parse_root(rs.body());
     if (!opt_root_dev) return sys::errc::io_error;
 
-    return std::move(*opt_root_dev);
+    return {std::move(*opt_root_dev)};
 }
 
 void igd::stop() {

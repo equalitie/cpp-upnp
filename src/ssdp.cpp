@@ -149,7 +149,7 @@ query::state_t::get_response(net::yield_context yield)
 
     auto r = std::move(_responses.front());
     _responses.pop();
-    return std::move(r.value());
+    return {std::move(r.value())};
 }
 
 /* static */
@@ -216,7 +216,7 @@ query::response::parse(string_view lines)
         }
     }
 
-    return ret;
+    return {std::move(ret)};
 }
 
 void query::state_t::stop() {

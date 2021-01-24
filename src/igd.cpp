@@ -17,12 +17,12 @@ namespace upnp {
 
 namespace sys = boost::system;
 
-igd::igd( std::string   uuid
-        , device        upnp_device
-        , std::string   service_id
-        , url_t         url
-        , std::string   urn
-        , net::executor exec)
+igd::igd( std::string          uuid
+        , device               upnp_device
+        , std::string          service_id
+        , url_t                url
+        , std::string          urn
+        , net::any_io_executor exec)
     : _uuid(std::move(uuid))
     , _upnp_device(std::move(upnp_device))
     , _service_id(std::move(service_id))
@@ -91,7 +91,7 @@ igd::get_external_address(net::yield_context yield) noexcept
     auto addr = net::ip::make_address(ip_s, ec);
     if (ec) return error::bad_address{};
 
-    return std::move(addr);
+    return {std::move(addr)};
 }
 
 result<igd::map_entry, igd::error::get_generic_port_mapping_entry>
@@ -212,7 +212,7 @@ igd::get_list_of_port_mappings( protocol proto
                           , bool(*oena)});
     }
 
-    return std::move(entries);
+    return {std::move(entries)};
 }
 
 result<void, igd::error::delete_port_mapping>
@@ -290,11 +290,11 @@ igd::soap_request( string_view command
         return E{error::http_status{rs.result()}};
     }
 
-    return std::move(rs);
+    return {std::move(rs)};
 }
 
 /* static */
-result<std::vector<igd>> igd::discover(net::executor exec, net::yield_context yield)
+result<std::vector<igd>> igd::discover(net::any_io_executor exec, net::yield_context yield)
 {
     using namespace std;
 
@@ -370,12 +370,12 @@ result<std::vector<igd>> igd::discover(net::executor exec, net::yield_context yi
         }
     }
 
-    return std::move(igds);
+    return {std::move(igds)};
 }
 
 /* static */
 result<device>
-igd::query_root_device( net::executor exec
+igd::query_root_device( net::any_io_executor exec
                       , const url_t& url
                       , net::yield_context yield) noexcept
 {
@@ -418,7 +418,7 @@ igd::query_root_device( net::executor exec
     auto opt_root_dev = device_parse_root(rs.body());
     if (!opt_root_dev) return sys::errc::io_error;
 
-    return std::move(*opt_root_dev);
+    return {std::move(*opt_root_dev)};
 }
 
 void igd::stop() {

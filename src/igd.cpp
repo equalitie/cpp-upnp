@@ -44,7 +44,7 @@ igd::add_port_mapping( protocol proto
     if (!opt_remote_ep)
         return error::igd_host_parse_failed{_url};
 
-    auto opt_local_ip = local_address_to(*opt_remote_ep);
+    auto opt_local_ip = local_address_to(_exec, *opt_remote_ep, yield);
     if (!opt_local_ip)
         return error::no_endpoint_to_igd{};
 

@@ -128,7 +128,7 @@ public:
      * Discover IGD devices.
      */
     static
-    result<std::vector<igd>> discover(net::any_io_executor, net::yield_context);
+    result<std::vector<igd>> discover(net::any_io_executor, net::yield_context, const string_view &bind_ip = "");
 
     /*
      * Section 2.4.16 from (IGD:1)

@@ -9,6 +9,7 @@
 #include <boost/range/begin.hpp> // needed by spawn
 #include <boost/range/end.hpp> // needed by spawn
 #include <boost/asio/spawn.hpp>
+#include <boost/asio/ip/address_v4.hpp>
 
 namespace upnp { namespace ssdp {
 
@@ -67,7 +68,7 @@ public:
     query(query&&)            = default;
     query& operator=(query&&) = default;
 
-    static result<query> start(net::any_io_executor, net::yield_context, const string_view &bind_ip);
+    static result<query> start(net::any_io_executor exec, const net::ip::address_v4& bind_ip, net::yield_context yield);
 
     // May be called multiple times until error is of type error_code.
     // This let's callers of this function decide what to do when ssdp

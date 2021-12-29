@@ -41,12 +41,12 @@ struct query::state_t : std::enable_shared_from_this<state_t> {
     result<query::response, query::error::get_response>
     get_response(net::yield_context yield);
 
-    result<void> start(net::yield_context, const string_view &bind_ip);
+    result<void> start(const net::ip::address_v4 &bind_ip, net::yield_context);
 
     void stop();
 };
 
-result<void> query::state_t::start(net::yield_context yield, const string_view &bind_ip)
+result<void> query::state_t::start(const net::ip::address_v4 &bind_ip, net::yield_context yield)
 {
     using udp = net::ip::udp;
     using namespace std::chrono;
@@ -55,11 +55,7 @@ result<void> query::state_t::start(net::yield_context yield, const string_view &
     _socket.set_option(net::ip::multicast::join_group(_multicast_ep.address()));
 
     error_code ec;
-    if (bind_ip.empty()) {
-        _socket.bind(udp::endpoint(net::ip::address_v4::any(), 0), ec);
-    } else {
-        _socket.bind(udp::endpoint(net::ip::address_v4::from_string(bind_ip.data()), 0), ec);
-    }
+    _socket.bind(udp::endpoint(bind_ip, 0), ec);
 
     if (ec) return ec;
 
@@ -236,10 +232,10 @@ query::query(std::shared_ptr<state_t> state)
 {}
 
 /* static */
-result<query> query::start(net::any_io_executor exec, net::yield_context yield, const string_view &bind_ip)
+result<query> query::start(net::any_io_executor exec, const net::ip::address_v4& bind_ip, net::yield_context yield)
 {
     auto st = std::make_shared<state_t>(exec);
-    auto r = st->start(yield, bind_ip);
+    auto r = st->start(bind_ip, yield);
     if (!r) return r.error();
     return query{std::move(st)};
 }

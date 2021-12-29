@@ -294,11 +294,13 @@ igd::soap_request( string_view command
 }
 
 /* static */
-result<std::vector<igd>> igd::discover(net::any_io_executor exec, net::yield_context yield)
+result<std::vector<igd>> igd::discover(net::any_io_executor exec
+                                       , const net::ip::address_v4& bind_ip
+                                       , net::yield_context yield)
 {
     using namespace std;
 
-    auto q = ssdp::query::start(exec, yield);
+    auto q = ssdp::query::start(exec, bind_ip, yield);
     if (!q) return q.error();
     auto& query = q.value();
 
@@ -371,6 +373,11 @@ result<std::vector<igd>> igd::discover(net::any_io_executor exec, net::yield_con
     }
 
     return {std::move(igds)};
+}
+
+result<std::vector<igd>> igd::discover(net::any_io_executor exec, net::yield_context yield)
+{
+    return std::move(discover(exec, net::ip::address_v4::any(), yield));
 }
 
 /* static */

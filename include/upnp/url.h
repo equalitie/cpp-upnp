@@ -2,6 +2,7 @@
 
 #include <upnp/third_party/optional.h>
 #include <upnp/third_party/string_view.h>
+#include <stdint.h>
 
 namespace upnp {
 

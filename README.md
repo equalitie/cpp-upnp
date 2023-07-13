@@ -1,4 +1,5 @@
-[![CircleCI](https://circleci.com/gh/equalitie/cpp-upnp/tree/master.svg?style=shield)](https://circleci.com/gh/equalitie/cpp-upnp/tree/master)
+[![pipeline status](https://gitlab.com/equalitie/cpp-upnp/badges/main/pipeline.svg)](https://gitlab.com/equalitie/cpp-upnp/-/commits/main)
+
 
 # CPPUPnP
 

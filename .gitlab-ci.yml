@@ -1,0 +1,26 @@
+image: debian:bookworm
+
+stages:
+  - build
+
+build:
+  stage: build
+  tags:
+    - docker
+  script:
+    - apt update && apt install -y
+        build-essential
+        cmake
+        git
+        zlib1g-dev
+    - git clone https://gitlab.com/equalitie/ouinet-boost.git
+    - cmake -S ouinet-boost/ -B build/boost -Wno-error=deprecated-declarations -Wno-error=nonnull
+    - cmake --build build/boost
+    - cmake -S example -B build/example
+        -DBOOST_ROOT=$CI_PROJECT_DIR/build/boost/boost/install/
+        -DBoost_USE_STATIC_LIBS=ON
+    - cmake --build build/example
+    - cmake -S test -B build/test
+        -DCMAKE_CXX_FLAGS=-isystem\ $CI_PROJECT_DIR/build/boost/boost/install/include
+    - cmake --build build/test
+    - ./build/test/test-url --log_level=test_suite

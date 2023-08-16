@@ -1,26 +1,53 @@
-image: debian:bookworm
-
 stages:
   - build
 
-build:
+.build:
   stage: build
   tags:
     - docker
   script:
+    # Install dependencies
     - apt update && apt install -y
         build-essential
-        cmake
         git
         zlib1g-dev
-    - git clone https://gitlab.com/equalitie/ouinet-boost.git
-    - cmake -S ouinet-boost/ -B build/boost -Wno-error=deprecated-declarations -Wno-error=nonnull
-    - cmake --build build/boost
+        wget
+
+      # Build boost
+    - boost="boost_"$BOOST_MAJOR"_"$BOOST_MINOR"_"$BOOST_PATCH
+    - wget --quiet "https://boostorg.jfrog.io/artifactory/main/release/"$BOOST_MAJOR"."$BOOST_MINOR"."$BOOST_PATCH"/source/"$boost".tar.bz2"
+    - tar -xjf $boost".tar.bz2"
+    - cd $boost
+    - ./bootstrap.sh
+    - ./b2 -j3 -d+0 --link=static --with-system --with-test --with-coroutine --with-date_time --with-atomic
+    - cd ..
+
+    # Get cmake (this is needed as the version shipped with buster is too old)
+    - cmake=$CMAKE_MAJOR"."$CMAKE_MINOR"."$CMAKE_PATCH
+    - wget --quiet "https://cmake.org/files/v"$CMAKE_MAJOR"."$CMAKE_MINOR"/cmake-"$cmake"-Linux-x86_64.tar.gz"
+    - export PATH=$CI_PROJECT_DIR"/cmake-"$cmake"-Linux-x86_64/bin:"$PATH
+
+      # Build examples
     - cmake -S example -B build/example
-        -DBOOST_ROOT=$CI_PROJECT_DIR/build/boost/boost/install/
+        -DBOOST_ROOT=$CI_PROJECT_DIR"/"$boost
         -DBoost_USE_STATIC_LIBS=ON
     - cmake --build build/example
+
+      # Build tests
     - cmake -S test -B build/test
-        -DCMAKE_CXX_FLAGS=-isystem\ $CI_PROJECT_DIR/build/boost/boost/install/include
+        -DCMAKE_CXX_FLAGS=-isystem\ $CI_PROJECT_DIR"/"$boost
     - cmake --build build/test
+
+      # Run the tests
     - ./build/test/test-url --log_level=test_suite
+
+  boost-1.71:
+    extends: ".build"
+    image: debian:buster
+    variables:
+      BOOST_MAJOR: "1"
+      BOOST_MINOR: "71"
+      BOOST_PATCH: "0"
+      CMAKE_MAJOR: "3"
+      CMAKE_MINOR: "15"
+      CMAKE_PATCH: "7"

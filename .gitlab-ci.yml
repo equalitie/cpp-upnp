@@ -25,6 +25,7 @@ stages:
     # Get cmake (this is needed as the version shipped with buster is too old)
     - cmake=$CMAKE_MAJOR"."$CMAKE_MINOR"."$CMAKE_PATCH
     - wget --quiet "https://cmake.org/files/v"$CMAKE_MAJOR"."$CMAKE_MINOR"/cmake-"$cmake"-Linux-x86_64.tar.gz"
+    - tar -xzf "cmake-"$cmake"-Linux-x86_64.tar.gz"
     - export PATH=$CI_PROJECT_DIR"/cmake-"$cmake"-Linux-x86_64/bin:"$PATH
 
       # Build examples

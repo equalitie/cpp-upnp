@@ -41,13 +41,13 @@ stages:
       # Run the tests
     - ./build/test/test-url --log_level=test_suite
 
-  boost-1.71:
-    extends: ".build"
-    image: debian:buster
-    variables:
-      BOOST_MAJOR: "1"
-      BOOST_MINOR: "71"
-      BOOST_PATCH: "0"
-      CMAKE_MAJOR: "3"
-      CMAKE_MINOR: "15"
-      CMAKE_PATCH: "7"
+boost-1.71:
+  extends: ".build"
+  image: debian:buster
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "71"
+    BOOST_PATCH: "0"
+    CMAKE_MAJOR: "3"
+    CMAKE_MINOR: "15"
+    CMAKE_PATCH: "7"

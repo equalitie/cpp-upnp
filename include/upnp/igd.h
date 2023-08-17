@@ -128,7 +128,7 @@ public:
      * Discover IGD devices.
      */
     static
-    result<std::vector<igd>> discover(net::executor, net::yield_context);
+    result<std::vector<igd>> discover(NetExecutor, net::yield_context);
 
     /*
      * Section 2.4.16 from (IGD:1)
@@ -222,11 +222,11 @@ private:
        , std::string   service_id
        , url_t         url
        , std::string   urn
-       , net::executor exec);
+       , NetExecutor exec);
 
     static
     result<device>
-    query_root_device(net::executor, const url_t&, net::yield_context) noexcept;
+    query_root_device(NetExecutor, const url_t&, net::yield_context) noexcept;
 
     using soap_response = beast::http::response<beast::http::string_body>;
 
@@ -241,7 +241,7 @@ private:
     std::string   _service_id;
     url_t         _url;
     std::string   _urn;
-    net::executor _exec;
+    NetExecutor _exec;
     cancel_t      _cancel;
 };
 

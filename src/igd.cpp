@@ -22,7 +22,7 @@ igd::igd( std::string   uuid
         , std::string   service_id
         , url_t         url
         , std::string   urn
-        , net::executor exec)
+        , NetExecutor exec)
     : _uuid(std::move(uuid))
     , _upnp_device(std::move(upnp_device))
     , _service_id(std::move(service_id))
@@ -294,7 +294,7 @@ igd::soap_request( string_view command
 }
 
 /* static */
-result<std::vector<igd>> igd::discover(net::executor exec, net::yield_context yield)
+result<std::vector<igd>> igd::discover(NetExecutor exec, net::yield_context yield)
 {
     using namespace std;
 
@@ -375,7 +375,7 @@ result<std::vector<igd>> igd::discover(net::executor exec, net::yield_context yi
 
 /* static */
 result<device>
-igd::query_root_device( net::executor exec
+igd::query_root_device( NetExecutor exec
                       , const url_t& url
                       , net::yield_context yield) noexcept
 {

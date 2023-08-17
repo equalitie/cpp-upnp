@@ -18,7 +18,7 @@ namespace upnp { namespace ssdp {
 namespace sys = boost::system;
 
 struct query::state_t : std::enable_shared_from_this<state_t> {
-    net::executor _exec;
+    NetExecutor _exec;
     net::ip::udp::socket _socket;
     net::steady_timer _timer;
     ConditionVariable _cv;
@@ -29,7 +29,7 @@ struct query::state_t : std::enable_shared_from_this<state_t> {
     bool _stopped = false;
     optional<error_code> _rx_ec;
 
-    state_t(net::executor exec)
+    state_t(NetExecutor exec)
         : _exec(std::move(exec))
         , _socket(_exec, net::ip::udp::v4())
         , _timer(_exec)
@@ -231,7 +231,7 @@ query::query(std::shared_ptr<state_t> state)
 {}
 
 /* static */
-result<query> query::start(net::executor exec, net::yield_context yield)
+result<query> query::start(NetExecutor exec, net::yield_context yield)
 {
     auto st = std::make_shared<state_t>(exec);
     auto r = st->start(yield);

@@ -8,10 +8,16 @@
 
 namespace upnp {
 
+#if BOOST_VERSION >= 107400
+    using NetExecutor = net::any_io_executor;
+#else
+    using NetExecutor = net::executor;
+#endif
+
 template<class Proto /* net::ip::{tcp,udp} */>
 inline
 boost::optional<net::ip::address> local_address_to(
-        net::executor& exec,
+        NetExecutor& exec,
         net::ip::basic_endpoint<Proto> ep,
         net::yield_context yield)
 {

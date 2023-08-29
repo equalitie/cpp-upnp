@@ -26,14 +26,14 @@ class ConditionVariable {
         <WaitEntry, boost::intrusive::constant_time_size<false>>;
 
 public:
-    ConditionVariable(const net::executor&);
+    ConditionVariable(const NetExecutor&);
 
     ConditionVariable(const ConditionVariable&) = delete;
     ConditionVariable& operator=(const ConditionVariable&) = delete;
 
     ~ConditionVariable();
 
-    net::executor get_executor() { return _exec; }
+    NetExecutor get_executor() { return _exec; }
 
     void notify(const boost::system::error_code& ec
                     = boost::system::error_code());
@@ -42,12 +42,12 @@ public:
     void wait(net::yield_context yield);
 
 private:
-    net::executor _exec;
+    NetExecutor _exec;
     IntrusiveList _on_notify;
 };
 
 inline
-ConditionVariable::ConditionVariable(const net::executor& exec)
+ConditionVariable::ConditionVariable(const NetExecutor& exec)
     : _exec(exec)
 {
 }

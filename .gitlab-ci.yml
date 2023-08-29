@@ -23,10 +23,10 @@ stages:
     - cd ..
 
     # Get cmake (this is needed as the version shipped with buster is too old)
-    - cmake=$CMAKE_MAJOR"."$CMAKE_MINOR"."$CMAKE_PATCH
-    - wget --quiet "https://cmake.org/files/v"$CMAKE_MAJOR"."$CMAKE_MINOR"/cmake-"$cmake"-Linux-x86_64.tar.gz"
-    - tar -xzf "cmake-"$cmake"-Linux-x86_64.tar.gz"
-    - export PATH=$CI_PROJECT_DIR"/cmake-"$cmake"-Linux-x86_64/bin:"$PATH
+    - cmake="cmake-"$CMAKE_MAJOR"."$CMAKE_MINOR"."$CMAKE_PATCH"-"$CMAKE_PLATFORM
+    - wget --quiet "https://cmake.org/files/v"$CMAKE_MAJOR"."$CMAKE_MINOR"/"$cmake".tar.gz"
+    - tar -xzf $cmake".tar.gz"
+    - export PATH=$CI_PROJECT_DIR"/"$cmake"/bin:"$PATH
 
       # Build examples
     - cmake -S example -B build/example
@@ -49,6 +49,19 @@ boost-1.71:
     BOOST_MAJOR: "1"
     BOOST_MINOR: "71"
     BOOST_PATCH: "0"
+    CMAKE_PLATFORM: "Linux-x86_64"
     CMAKE_MAJOR: "3"
     CMAKE_MINOR: "15"
     CMAKE_PATCH: "7"
+
+boost-1.74:
+  extends: ".build"
+  image: debian:bookworm
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "74"
+    BOOST_PATCH: "0"
+    CMAKE_PLATFORM: "linux-x86_64"
+    CMAKE_MAJOR: "3"
+    CMAKE_MINOR: "25"
+    CMAKE_PATCH: "1"

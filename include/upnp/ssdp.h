@@ -10,7 +10,15 @@
 #include <boost/range/end.hpp> // needed by spawn
 #include <boost/asio/spawn.hpp>
 
-namespace upnp { namespace ssdp {
+namespace upnp {
+
+#if BOOST_VERSION >= 107400
+    using NetExecutor = net::any_io_executor;
+#else
+    using NetExecutor = net::executor;
+#endif
+
+namespace ssdp {
 
 class query {
 public:
@@ -67,7 +75,7 @@ public:
     query(query&&)            = default;
     query& operator=(query&&) = default;
 
-    static result<query> start(net::executor, net::yield_context);
+    static result<query> start(NetExecutor, net::yield_context);
 
     // May be called multiple times until error is of type error_code.
     // This let's callers of this function decide what to do when ssdp

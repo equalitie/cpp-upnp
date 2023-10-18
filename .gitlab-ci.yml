@@ -65,3 +65,15 @@ boost-1.74:
     CMAKE_MAJOR: "3"
     CMAKE_MINOR: "25"
     CMAKE_PATCH: "1"
+
+boost-1.77:
+  extends: ".build"
+  image: debian:bookworm
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "77"
+    BOOST_PATCH: "0"
+    CMAKE_PLATFORM: "linux-x86_64"
+    CMAKE_MAJOR: "3"
+    CMAKE_MINOR: "25"
+    CMAKE_PATCH: "1"

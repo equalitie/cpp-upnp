@@ -53,6 +53,8 @@ boost-1.71:
     CMAKE_MAJOR: "3"
     CMAKE_MINOR: "15"
     CMAKE_PATCH: "7"
+  when: manual
+  allow_failure: true
 
 boost-1.74:
   extends: ".build"
@@ -65,6 +67,8 @@ boost-1.74:
     CMAKE_MAJOR: "3"
     CMAKE_MINOR: "25"
     CMAKE_PATCH: "1"
+  when: manual
+  allow_failure: true
 
 boost-1.77:
   extends: ".build"
@@ -77,6 +81,8 @@ boost-1.77:
     CMAKE_MAJOR: "3"
     CMAKE_MINOR: "25"
     CMAKE_PATCH: "1"
+  when: manual
+  allow_failure: true
 
 boost-1.79:
   extends: ".build"
@@ -84,6 +90,80 @@ boost-1.79:
   variables:
     BOOST_MAJOR: "1"
     BOOST_MINOR: "79"
+    BOOST_PATCH: "0"
+    CMAKE_PLATFORM: "linux-x86_64"
+    CMAKE_MAJOR: "3"
+    CMAKE_MINOR: "25"
+    CMAKE_PATCH: "1"
+  when: manual
+  allow_failure: true
+
+boost-1.80:
+  extends: ".build"
+  image: debian:bookworm
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "80"
+    BOOST_PATCH: "0"
+    CMAKE_PLATFORM: "linux-x86_64"
+    CMAKE_MAJOR: "3"
+    CMAKE_MINOR: "25"
+    CMAKE_PATCH: "1"
+
+boost-1.81:
+  extends: ".build"
+  image: debian:bookworm
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "81"
+    BOOST_PATCH: "0"
+    CMAKE_PLATFORM: "linux-x86_64"
+    CMAKE_MAJOR: "3"
+    CMAKE_MINOR: "25"
+    CMAKE_PATCH: "1"
+
+boost-1.82:
+  extends: ".build"
+  image: debian:bookworm
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "82"
+    BOOST_PATCH: "0"
+    CMAKE_PLATFORM: "linux-x86_64"
+    CMAKE_MAJOR: "3"
+    CMAKE_MINOR: "25"
+    CMAKE_PATCH: "1"
+
+boost-1.83:
+  extends: ".build"
+  image: debian:bookworm
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "83"
+    BOOST_PATCH: "0"
+    CMAKE_PLATFORM: "linux-x86_64"
+    CMAKE_MAJOR: "3"
+    CMAKE_MINOR: "25"
+    CMAKE_PATCH: "1"
+
+boost-1.84:
+  extends: ".build"
+  image: debian:bookworm
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "84"
+    BOOST_PATCH: "0"
+    CMAKE_PLATFORM: "linux-x86_64"
+    CMAKE_MAJOR: "3"
+    CMAKE_MINOR: "25"
+    CMAKE_PATCH: "1"
+
+boost-1.85:
+  extends: ".build"
+  image: debian:bookworm
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "85"
     BOOST_PATCH: "0"
     CMAKE_PLATFORM: "linux-x86_64"
     CMAKE_MAJOR: "3"

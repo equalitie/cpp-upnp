@@ -4,12 +4,12 @@ project(CPPUPnP VERSION 1.0.0 LANGUAGES CXX)
 
 if (NOT Boost_USE_STATIC_LIBS)
     find_package(Threads REQUIRED)
-    find_package(Boost 1.71 REQUIRED COMPONENTS coroutine system)
+    find_package(Boost 1.71 REQUIRED COMPONENTS system)
     set(THREAD_LIB "Threads::Threads")
 else()
     # When linking with static Boost, we need to link with libboost_thread.
     find_package(Threads REQUIRED)
-    find_package(Boost 1.71 REQUIRED COMPONENTS thread coroutine system)
+    find_package(Boost 1.71 REQUIRED COMPONENTS thread system)
     # Boost::thread adds Threads::Threads automatically
     set(THREAD_LIB "Boost::thread")
 endif()
@@ -31,7 +31,6 @@ target_include_directories(cpp_upnp
 target_link_libraries(cpp_upnp
     PUBLIC
         Boost::system
-        Boost::coroutine
     PRIVATE
         ${THREAD_LIB}
 )

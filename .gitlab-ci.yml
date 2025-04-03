@@ -15,7 +15,7 @@ stages:
 
       # Build boost
     - boost="boost_"$BOOST_MAJOR"_"$BOOST_MINOR"_"$BOOST_PATCH
-    - wget --quiet "https://boostorg.jfrog.io/artifactory/main/release/"$BOOST_MAJOR"."$BOOST_MINOR"."$BOOST_PATCH"/source/"$boost".tar.bz2"
+    - wget --quiet "https://archives.boost.io/release/"$BOOST_MAJOR"."$BOOST_MINOR"."$BOOST_PATCH"/source/"$boost".tar.bz2"
     - tar -xjf $boost".tar.bz2"
     - cd $boost
     - ./bootstrap.sh

@@ -2,17 +2,22 @@ cmake_minimum_required(VERSION 3.5)
 
 project(CPPUPnP VERSION 1.0.0 LANGUAGES CXX)
 
+set(BOOST_COMPONENTS system context)
+if ( Boost_VERSION LESS_EQUAL 1.79.0)
+    set(BOOST_COMPONENTS ${BOOST_COMPONENTS} coroutine)
+endif ()
+
 if (NOT Boost_USE_STATIC_LIBS)
-    find_package(Threads REQUIRED)
-    find_package(Boost 1.71 REQUIRED COMPONENTS system context)
     set(THREAD_LIB "Threads::Threads")
 else()
     # When linking with static Boost, we need to link with libboost_thread.
-    find_package(Threads REQUIRED)
-    find_package(Boost 1.71 REQUIRED COMPONENTS thread system context)
+    set(BOOST_COMPONENTS thread ${BOOST_COMPONENTS})
     # Boost::thread adds Threads::Threads automatically
     set(THREAD_LIB "Boost::thread")
 endif()
+
+find_package(Threads REQUIRED)
+find_package(Boost 1.71 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 
 add_library(cpp_upnp
     STATIC

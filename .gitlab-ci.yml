@@ -20,7 +20,10 @@ stages:
     - tar -xjf $boost".tar.bz2"
     - cd $boost
     - ./bootstrap.sh
-    - ./b2 -j3 -d+0 --link=static --with-system --with-test --with-date_time --with-atomic --with-thread --with-chrono --with-context
+    - b2_options="--with-system --with-test --with-date_time --with-atomic --with-thread --with-chrono --with-context"
+    - if [$BOOST_USE_STATIC_LIBS == "ON"]; then b2_options="--link=static "$b2_options fi
+    - if [$BOOST_MINOR -lt 80]; then b2_options=$b2_options" --with-coroutine"
+    - ./b2 -j3 -d+0 $b2_options
     - cd ..
 
       # Build examples

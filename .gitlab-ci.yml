@@ -26,7 +26,7 @@ stages:
       # Build examples
     - cmake -S example -B build/example
         -DBOOST_ROOT=$CI_PROJECT_DIR"/"$boost
-        -DBoost_USE_STATIC_LIBS=ON
+        -DBoost_USE_STATIC_LIBS=${BOOST_USE_STATIC_LIBS}
     - cmake --build build/example
 
       # Build tests
@@ -37,18 +37,38 @@ stages:
       # Run the tests
     - ./build/test/test-url --log_level=test_suite
 
-boost-1.79:
+boost-1.79-static-libs-off:
   extends: ".build"
   image: debian:bookworm
   variables:
     BOOST_MAJOR: "1"
     BOOST_MINOR: "79"
     BOOST_PATCH: "0"
+    BOOST_USE_STATIC_LIBS: "OFF"
 
-boost-1.87:
+boost-1.87-static-libs-off:
   extends: ".build"
   image: debian:bookworm
   variables:
     BOOST_MAJOR: "1"
     BOOST_MINOR: "87"
     BOOST_PATCH: "0"
+    BOOST_USE_STATIC_LIBS: "OFF"
+
+boost-1.79-static-libs-on:
+  extends: ".build"
+  image: debian:bookworm
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "79"
+    BOOST_PATCH: "0"
+    BOOST_USE_STATIC_LIBS: "ON"
+
+boost-1.87-static-libs-on:
+  extends: ".build"
+  image: debian:bookworm
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "87"
+    BOOST_PATCH: "0"
+    BOOST_USE_STATIC_LIBS: "ON"

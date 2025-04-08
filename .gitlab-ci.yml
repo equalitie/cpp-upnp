@@ -20,7 +20,7 @@ stages:
     - tar -xjf $boost".tar.bz2"
     - cd $boost
     - ./bootstrap.sh
-    - ./b2 -j3 -d+0 --link=static --with-system --with-test --with-coroutine --with-date_time --with-atomic --with-thread --with-chrono
+    - ./b2 -j3 -d+0 --link=static --with-system --with-test --with-date_time --with-atomic --with-thread --with-chrono --with-context
     - cd ..
 
       # Build examples

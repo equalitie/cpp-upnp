@@ -16,7 +16,8 @@ stages:
 
       # Build boost
     - boost="boost_"$BOOST_MAJOR"_"$BOOST_MINOR"_"$BOOST_PATCH
-    - wget --quiet "https://archives.boost.io/release/"$BOOST_MAJOR"."$BOOST_MINOR"."$BOOST_PATCH"/source/"$boost".tar.bz2"
+    - BOOST_VERSION=$BOOST_MAJOR"."$BOOST_MINOR"."$BOOST_PATCH
+    - wget --quiet "https://archives.boost.io/release/"$BOOST_VERSION"/source/"$boost".tar.bz2"
     - tar -xjf $boost".tar.bz2"
     - cd $boost
     - ./bootstrap.sh
@@ -28,6 +29,7 @@ stages:
 
       # Build examples
     - cmake -S example -B build/example
+        -DBOOST_VERSION=$BOOST_VERSION
         -DBOOST_ROOT=$CI_PROJECT_DIR"/"$boost
         -DBoost_USE_STATIC_LIBS=${BOOST_USE_STATIC_LIBS}
     - cmake --build build/example

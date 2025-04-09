@@ -2,11 +2,15 @@ cmake_minimum_required(VERSION 3.5)
 
 project(CPPUPnP VERSION 1.0.0 LANGUAGES CXX)
 
+if (NOT BOOST_VERSION)
+    set(BOOST_VERSION 1.87.0)
+endif()
+
 set(BOOST_COMPONENTS system context)
 set(LINK_LIBRARIES_PUB Boost::system)
 set(LINK_LIBRARIES_PRIV Boost::context)
 
-if ( Boost_VERSION LESS_EQUAL 1.79.0)
+if (BOOST_VERSION LESS_EQUAL 1.79.0)
     set(BOOST_COMPONENTS ${BOOST_COMPONENTS} coroutine)
     set(LINK_LIBRARIES_PUB ${LINK_LIBRARIES_PUB} "Boost::coroutine")
 endif ()
@@ -21,7 +25,7 @@ else()
 endif()
 
 find_package(Threads REQUIRED)
-find_package(Boost 1.71 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
+find_package(Boost ${BOOST_VERSION} REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 
 add_library(cpp_upnp
     STATIC

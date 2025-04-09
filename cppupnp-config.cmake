@@ -3,11 +3,12 @@ cmake_minimum_required(VERSION 3.5)
 project(CPPUPnP VERSION 1.0.0 LANGUAGES CXX)
 
 set(BOOST_COMPONENTS system context)
+set(LINK_LIBRARIES_PUB Boost::system)
 set(LINK_LIBRARIES_PRIV Boost::context)
 
 if ( Boost_VERSION LESS_EQUAL 1.79.0)
     set(BOOST_COMPONENTS ${BOOST_COMPONENTS} coroutine)
-    set(LINK_LIBRARIES_PRIV ${LINK_LIBRARIES_PRIV} "Boost::coroutine")
+    set(LINK_LIBRARIES_PUB ${LINK_LIBRARIES_PUB} "Boost::coroutine")
 endif ()
 
 if (NOT Boost_USE_STATIC_LIBS)
@@ -38,7 +39,7 @@ target_include_directories(cpp_upnp
 
 target_link_libraries(cpp_upnp
     PUBLIC
-        Boost::system
+        ${LINK_LIBRARIES_PUB}
     PRIVATE
         ${LINK_LIBRARIES_PRIV}
 )

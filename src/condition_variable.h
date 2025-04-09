@@ -75,9 +75,24 @@ void ConditionVariable::wait(cancel_t& cancel, net::yield_context yield)
 
     WaitEntry entry;
 
-    net::async_completion<net::yield_context, Sig> init(yield);
-    entry.handler = std::move(init.completion_handler);
-    _on_notify.push_back(entry);
+    auto init = [&entry, this](auto completion_handler)
+    {
+        // The `entry.handler` is of type `std::function<Sig>` which requires
+        // that closure we pass to it on construction is
+        // `is_copy_constructible`, but the `completion_handler` isn't. So we
+        // wrap it in `shared_ptr` and invoke it through that.
+        //
+        // TODO: C++23 comes with `std::move_only_function` which we could use
+        // to avoid the extra allocation.
+        using Handler = std::decay_t<decltype(completion_handler)>;
+        auto h = std::make_shared<Handler>(std::move(completion_handler));
+
+        entry.handler = [h](const boost::system::error_code& ec) {
+            (*h)(ec);
+        };
+
+        _on_notify.push_back(entry);
+    };
 
     auto slot = cancel.connect([&] {
         assert(entry.is_linked());
@@ -88,7 +103,10 @@ void ConditionVariable::wait(cancel_t& cancel, net::yield_context yield)
         });
     });
 
-    return init.result.get();
+    return net::async_initiate<
+        net::yield_context,
+        void(error_code)
+      >(init, yield);
 }
 
 inline

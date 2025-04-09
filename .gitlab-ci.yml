@@ -9,29 +9,29 @@ stages:
     # Install dependencies
     - apt update && apt install -y
         build-essential
+        cmake
         git
         zlib1g-dev
         wget
 
       # Build boost
     - boost="boost_"$BOOST_MAJOR"_"$BOOST_MINOR"_"$BOOST_PATCH
-    - wget --quiet "https://boostorg.jfrog.io/artifactory/main/release/"$BOOST_MAJOR"."$BOOST_MINOR"."$BOOST_PATCH"/source/"$boost".tar.bz2"
+    - BOOST_VERSION=$BOOST_MAJOR"."$BOOST_MINOR"."$BOOST_PATCH
+    - wget --quiet "https://archives.boost.io/release/"$BOOST_VERSION"/source/"$boost".tar.bz2"
     - tar -xjf $boost".tar.bz2"
     - cd $boost
     - ./bootstrap.sh
-    - ./b2 -j3 -d+0 --link=static --with-system --with-test --with-coroutine --with-date_time --with-atomic --with-thread --with-chrono
+    - b2_options="--with-system --with-test --with-date_time --with-atomic --with-thread --with-chrono --with-context"
+    - if [[ $BOOST_USE_STATIC_LIBS == "ON" ]]; then b2_options="--link=static "$b2_options; fi
+    - if [[ $BOOST_MINOR -lt 80 ]]; then b2_options=$b2_options" --with-coroutine"; fi
+    - ./b2 -j3 -d+0 $b2_options
     - cd ..
-
-    # Get cmake (this is needed as the version shipped with buster is too old)
-    - cmake="cmake-"$CMAKE_MAJOR"."$CMAKE_MINOR"."$CMAKE_PATCH"-"$CMAKE_PLATFORM
-    - wget --quiet "https://cmake.org/files/v"$CMAKE_MAJOR"."$CMAKE_MINOR"/"$cmake".tar.gz"
-    - tar -xzf $cmake".tar.gz"
-    - export PATH=$CI_PROJECT_DIR"/"$cmake"/bin:"$PATH
 
       # Build examples
     - cmake -S example -B build/example
+        -DBOOST_VERSION=$BOOST_VERSION
         -DBOOST_ROOT=$CI_PROJECT_DIR"/"$boost
-        -DBoost_USE_STATIC_LIBS=ON
+        -DBoost_USE_STATIC_LIBS=${BOOST_USE_STATIC_LIBS}
     - cmake --build build/example
 
       # Build tests
@@ -42,50 +42,38 @@ stages:
       # Run the tests
     - ./build/test/test-url --log_level=test_suite
 
-boost-1.71:
-  extends: ".build"
-  image: debian:buster
-  variables:
-    BOOST_MAJOR: "1"
-    BOOST_MINOR: "71"
-    BOOST_PATCH: "0"
-    CMAKE_PLATFORM: "Linux-x86_64"
-    CMAKE_MAJOR: "3"
-    CMAKE_MINOR: "15"
-    CMAKE_PATCH: "7"
-
-boost-1.74:
-  extends: ".build"
-  image: debian:bookworm
-  variables:
-    BOOST_MAJOR: "1"
-    BOOST_MINOR: "74"
-    BOOST_PATCH: "0"
-    CMAKE_PLATFORM: "linux-x86_64"
-    CMAKE_MAJOR: "3"
-    CMAKE_MINOR: "25"
-    CMAKE_PATCH: "1"
-
-boost-1.77:
-  extends: ".build"
-  image: debian:bookworm
-  variables:
-    BOOST_MAJOR: "1"
-    BOOST_MINOR: "77"
-    BOOST_PATCH: "0"
-    CMAKE_PLATFORM: "linux-x86_64"
-    CMAKE_MAJOR: "3"
-    CMAKE_MINOR: "25"
-    CMAKE_PATCH: "1"
-
-boost-1.79:
+boost-1.79-static-libs-off:
   extends: ".build"
   image: debian:bookworm
   variables:
     BOOST_MAJOR: "1"
     BOOST_MINOR: "79"
     BOOST_PATCH: "0"
-    CMAKE_PLATFORM: "linux-x86_64"
-    CMAKE_MAJOR: "3"
-    CMAKE_MINOR: "25"
-    CMAKE_PATCH: "1"
+    BOOST_USE_STATIC_LIBS: "OFF"
+
+boost-1.87-static-libs-off:
+  extends: ".build"
+  image: debian:bookworm
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "87"
+    BOOST_PATCH: "0"
+    BOOST_USE_STATIC_LIBS: "OFF"
+
+boost-1.79-static-libs-on:
+  extends: ".build"
+  image: debian:bookworm
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "79"
+    BOOST_PATCH: "0"
+    BOOST_USE_STATIC_LIBS: "ON"
+
+boost-1.87-static-libs-on:
+  extends: ".build"
+  image: debian:bookworm
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "87"
+    BOOST_PATCH: "0"
+    BOOST_USE_STATIC_LIBS: "ON"

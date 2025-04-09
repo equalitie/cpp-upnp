@@ -1,6 +1,7 @@
 #include <upnp/ssdp.h>
 #include <boost/asio/ip/multicast.hpp>
 #include <boost/asio/steady_timer.hpp>
+#include <boost/asio/detached.hpp>
 #include <boost/asio/ip/udp.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <chrono>
@@ -45,6 +46,18 @@ struct query::state_t : std::enable_shared_from_this<state_t> {
 
     void stop();
 };
+
+template<
+    typename Executor,
+    typename Function
+    >
+void spawn_detached(Executor&& exec, Function&& func) {
+#if BOOST_VERSION >= 108000
+    net::spawn(std::forward<Executor>(exec), std::forward<Function>(func), net::detached);
+#else
+    net::spawn(std::forward<Executor>(exec), std::forward<Function>(func));
+#endif
+}
 
 result<void> query::state_t::start(net::yield_context yield)
 {
@@ -93,7 +106,7 @@ result<void> query::state_t::start(net::yield_context yield)
     }
 
 
-    net::spawn(_exec, [&, self = shared_from_this()] (auto y) {
+    spawn_detached(_exec, [&, self = shared_from_this()] (auto y) {
         _timer.expires_after(timeout + milliseconds(200));
         _timer.async_wait([&, self] (error_code) {
             if (_rx_ec) return;

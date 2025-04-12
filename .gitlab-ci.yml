@@ -60,6 +60,15 @@ boost-1.87-static-libs-off:
     BOOST_PATCH: "0"
     BOOST_USE_STATIC_LIBS: "OFF"
 
+boost-1.88-static-libs-off:
+  extends: ".build"
+  image: debian:bookworm
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "88"
+    BOOST_PATCH: "0"
+    BOOST_USE_STATIC_LIBS: "OFF"
+
 boost-1.79-static-libs-on:
   extends: ".build"
   image: debian:bookworm
@@ -75,5 +84,14 @@ boost-1.87-static-libs-on:
   variables:
     BOOST_MAJOR: "1"
     BOOST_MINOR: "87"
+    BOOST_PATCH: "0"
+    BOOST_USE_STATIC_LIBS: "ON"
+
+boost-1.88-static-libs-on:
+  extends: ".build"
+  image: debian:bookworm
+  variables:
+    BOOST_MAJOR: "1"
+    BOOST_MINOR: "88"
     BOOST_PATCH: "0"
     BOOST_USE_STATIC_LIBS: "ON"

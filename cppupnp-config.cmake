@@ -1,4 +1,8 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.13)
+
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.30)
+    cmake_policy(SET CMP0167 NEW)
+endif()
 
 project(CPPUPnP VERSION 1.0.0 LANGUAGES CXX)
 

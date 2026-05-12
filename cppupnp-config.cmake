@@ -10,8 +10,14 @@ if (NOT BOOST_VERSION)
     set(BOOST_VERSION 1.87.0)
 endif()
 
-set(BOOST_COMPONENTS system context)
-set(LINK_LIBRARIES_PUB Boost::system)
+if (BOOST_VERSION GREATER_EQUAL 1.89.0)
+    set(BOOST_COMPONENTS context)
+    set(LINK_LIBRARIES_PUB)
+else()
+    set(BOOST_COMPONENTS system context)
+    set(LINK_LIBRARIES_PUB Boost::system)
+endif()
+
 set(LINK_LIBRARIES_PRIV Boost::context)
 
 if (BOOST_VERSION LESS_EQUAL 1.79.0)

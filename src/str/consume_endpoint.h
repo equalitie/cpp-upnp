@@ -33,7 +33,7 @@ consume_endpoint(string_view& s)
         return none;
     }
 
-    return typename Proto::endpoint{move(*addr), *opt_port};
+    return typename Proto::endpoint{std::move(*addr), *opt_port};
 }
 
 }} // namespaces
